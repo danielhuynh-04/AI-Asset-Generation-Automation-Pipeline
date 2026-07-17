@@ -12,8 +12,9 @@
 ---
 
 ## 2. Phần A - Kiến trúc Automation (1:00 - 4:00)
-**[Hiển thị: Mở hình ảnh Architecture Diagram trên Github hoặc Miro]**
-- Để giải quyết bài toán tự động sinh Asset, hệ thống của em vận hành qua 5 lõi chính. Thay vì chờ mòn mỏi sinh từng ảnh, em áp dụng **ThreadPoolExecutor (Xử lý Đa Luồng)** để gọi API sinh hàng chục ảnh cùng lúc.
+**[Hiển thị: Cuộn File README.md trên Github tới phần Sơ đồ Hệ thống (Diagram & BPMN)]**
+- Để giải quyết bài toán tự động sinh Asset, hệ thống của em vận hành qua 5 lõi chính. Như các anh chị thấy trên Github ở mục README, em đã trực tiếp vẽ 2 sơ đồ khối High-Level Architecture và BPMN bằng code Mermaid để thể hiện rõ luồng dữ liệu.
+- Về mặt xử lý, thay vì chờ mòn mỏi sinh từng ảnh, em áp dụng **ThreadPoolExecutor (Xử lý Đa Luồng)** để gọi API sinh hàng chục ảnh cùng lúc.
 - **Tính toán Edge Case 1 (Lỗi Database Lock):** Khi lưu kết quả từ nhiều luồng vào SQLite, lỗi Deadlock rất dễ xảy ra. Em đã tinh chỉnh SQLAlchemy bằng cờ `check_same_thread=False` để tạo ra một State Machine an toàn tuyệt đối.
 - **Tính toán Edge Case 2 (Sập API):** Nếu Google Gemini hết Quota hoặc bị lỗi mạng thì sao? Code của em sẽ tự động kích hoạt **Cơ chế Fallback (Quay xe) sang ChatGPT (Pollinations Flux AI)**. Điều này giúp hệ thống đạt Uptime gần như tuyệt đối mà không cần can thiệp thủ công.
 - **Bảo vệ Idempotency (Tính Lặp An Toàn):** Pipeline của em quét Sheet và bỏ qua các Jobs đã đánh dấu `DONE`. Admin có thể ngắt điện giữa chừng, khi bật lại, hệ thống sẽ chạy tiếp dòng chưa xong chứ không bao giờ sinh trùng ảnh gây tốn tiền API.

@@ -11,8 +11,9 @@
 ---
 
 ## 2. Part A - Automation Architecture (1:00 - 4:00)
-**[Show: Architecture Diagram on Github]**
-- To generate assets automatically, my system has five main parts. To save time, I used **ThreadPoolExecutor** to process many images at the same time.
+**[Show: Scroll down Github README.md to Architecture/BPMN Diagrams]**
+- To generate assets automatically, my system has five main parts. In my Github README, I built both High-Level Architecture and BPMN workflow diagrams using Mermaid to clearly show how components interact.
+- To save time, I used **ThreadPoolExecutor** to process many images at the same time.
 - **Problem 1 (Database Lock):** When many threads write to SQLite, errors can happen. I fixed this by using the `check_same_thread=False` setting to make the database safe.
 - **Problem 2 (API Error):** What if Google Gemini is down or out of quota? My code has an automatic fallback. It will switch to **ChatGPT (through Pollinations AI)** for free. This keeps the system running ninety-nine point nine percent (99.9%) of the time.
 - **Idempotency (Safe to Restart):** The pipeline reads the Google Sheet and skips rows that are already marked as `DONE`. If the computer turns off, you can restart it safely without making duplicate images.
