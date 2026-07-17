@@ -81,6 +81,12 @@ def _process_single_row(row: dict) -> str:
             retry_count=0,
             output_format=str(row.get("output_format", "?")),
         )
+        try:
+            sheets_reader.update_row_status(
+                os.getenv("GOOGLE_SHEET_ID"), row_index, "FAILED"
+            )
+        except Exception as e:
+            logger.warning(f"[SHEETS] Could not write-back status: {e}")
         return "failed"
 
     norm = val_result.normalized
@@ -158,6 +164,12 @@ def _process_single_row(row: dict) -> str:
             retry_count=retry_count,
             output_format=norm["output_format"],
         )
+        try:
+            sheets_reader.update_row_status(
+                os.getenv("GOOGLE_SHEET_ID"), row_index, "FAILED"
+            )
+        except Exception as e_sheet:
+            logger.warning(f"[SHEETS] Could not write-back status: {e_sheet}")
         return "failed"
 
 
@@ -194,12 +206,12 @@ def run_pipeline():
         logger.info("[PIPELINE] No pending rows — done.")
         return
 
-    logger.info(f"[PIPELINE] Processing {len(rows)} rows concurrently (max_workers=5)...")
+    logger.info(f"[PIPELINE] Processing {len(rows)} rows concurrently (max_workers=2)...")
     summary = {"total": len(rows), "success": 0, "failed": 0, "skipped": 0}
 
     import concurrent.futures
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        # Chạy đa luồng song song tất cả các jobs (I/O bound: API AI, Google API)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+        # Chạy đa luồng song song (giảm xuống 2 để tránh 429 Too Many Requests từ Pollinations)
         results = executor.map(_process_single_row, rows)
     
     for res in results:
