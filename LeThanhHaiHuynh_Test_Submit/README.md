@@ -239,6 +239,8 @@ Google Drive mirror: `Outputs/{date}/{format}/{filename}`
 ├── tests/                   # pytest unit tests
 ├── report_sample/           # Sample daily report output
 ├── .env.example             # Config template
+├── KICH_BAN_THUYET_TRINH_VIDEO.md # Kịch bản Video (Tiếng Việt)
+├── VIDEO_SCRIPT_ENGLISH.md        # Video Presentation Script
 ├── requirements.txt
 └── README.md
 ```
