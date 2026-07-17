@@ -56,6 +56,7 @@ copy_file(os.path.join(src_dir, "README.md"), os.path.join(dst_dir, "README.md")
 
 # Copy Video Script
 copy_file(os.path.join(src_dir, "KICH_BAN_THUYET_TRINH_VIDEO.md"), os.path.join(dst_dir, "KICH_BAN_THUYET_TRINH_VIDEO.md"))
+copy_file(os.path.join(src_dir, "VIDEO_SCRIPT_ENGLISH.md"), os.path.join(dst_dir, "VIDEO_SCRIPT_ENGLISH.md"))
 
 # Create video link txt
 with open(os.path.join(dst_dir, "video_link.txt"), "w", encoding="utf-8") as f:
