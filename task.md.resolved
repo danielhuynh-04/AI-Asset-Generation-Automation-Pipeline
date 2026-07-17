@@ -1,0 +1,132 @@
+# TASK LIST — AI Asset Generation Automation Pipeline
+## Vị trí: Prompt Engineer / Automation Engineer Intern — Athena Studio
+### Ứng viên: Lê Thanh Hải Huỳnh (Daniel Huynh)
+
+---
+
+## NGÀY 1 — Thiết kế & Dựng nền
+
+### Requirement Analysis & Documentation
+- [ ] Đọc kỹ đề bài PDF và trích xuất yêu cầu chính xác
+- [ ] Viết `docs/Requirement_Analysis.md` (Objective, FR-01~FR-08, Non-functional)
+- [ ] Phân tích asset mẫu: lập bảng Art Style / Color Palette / Camera View / Lighting
+
+### System Design
+- [ ] Vẽ Architecture Diagram (toàn bộ pipeline từ Google Sheets đến Slack/Email)
+- [ ] Vẽ BPMN workflow (lanes: User / System / AI / Storage / Notification)
+- [ ] Thiết kế Database Schema — bảng `jobs`, `reports` (SQL + ERD)
+- [ ] Tạo `docs/System_Design.md`
+
+### Environment Setup
+- [ ] Tạo repo Git: `athena-prompt-automation-test`
+- [ ] Tạo virtual environment + `requirements.txt`
+- [ ] Tạo `.env.example` (OpenAI key, Google service account, Slack webhook, SMTP)
+- [ ] Tạo Google Sheet mẫu 10 dòng (bao gồm valid + invalid rows)
+- [ ] Setup Google Cloud service account + Sheets/Drive API
+
+### Project Structure
+- [ ] Tạo cấu trúc thư mục theo module
+
+---
+
+## NGÀY 2 — Automation Core
+
+### Module Development
+- [ ] `src/sheets_reader.py` — đọc Google Sheets, validate từng dòng
+- [ ] `src/validator.py` — kiểm tra field null, format, model hợp lệ
+- [ ] `src/ai_generator.py` — `generate_asset()` phân nhánh OpenAI / Claude
+- [ ] `src/retry_wrapper.py` — decorator retry 3 lần, exponential backoff
+- [ ] `src/drive_uploader.py` — upload theo cấu trúc `Outputs/{date}/{format}/`
+- [ ] `src/db_logger.py` — insert/update job status (SQLAlchemy + SQLite)
+- [ ] `src/notifier.py` — `notify_success()` + `notify_failure()` (Slack + Email)
+- [ ] `src/main.py` — orchestrator kết nối các module
+
+### Testing (Ngày 2)
+- [ ] Test case: Job thành công hoàn toàn ✅
+- [ ] Test case: Sai URL example ❌
+- [ ] Test case: API timeout (giả lập) ❌
+- [ ] Test case: Sai output_format ❌
+- [ ] Chụp màn hình log + Slack notification
+
+---
+
+## NGÀY 3 — Prompt Engineering
+
+### Asset Analysis
+- [ ] Phân tích style từng loại asset (Characters, Balls, Buttons, Frames, Backgrounds)
+- [ ] Lập bảng: Art style / Color palette / Camera angle / Lighting / Background / Detail level
+- [ ] Ghi nhận màu HEX chủ đạo
+
+### Prompt Iteration (mỗi loại asset ≥ 3 version)
+- [ ] **Characters** — V1 → Evaluate → V2 → Evaluate → V3 (Final)
+- [ ] **Bingo Balls** (Blue/Red/Green/Yellow/Purple) — V1 → V2 → V3
+- [ ] **UI Buttons** (Play, Spin, Back) — V1 → V2 → V3
+- [ ] **Frames** (Blue/Yellow card frames) — V1 → V2 → V3
+- [ ] **Background scenes** — V1 → V2 → V3
+
+### Documentation
+- [ ] Viết `prompt_engineering/prompt_engineering_report.md`
+- [ ] Bảng nhật ký iteration (Version | Prompt | Vấn đề | Điều chỉnh | Ảnh)
+- [ ] Bảng đánh giá định lượng so với asset gốc (1–5 trên 5 tiêu chí)
+
+---
+
+## NGÀY 4 — Logging, Report, README
+
+### Daily Report Module
+- [ ] `src/daily_report.py` — query DB → tính success/fail → Plotly charts
+  - Pie chart: Success Rate
+  - Bar chart: Jobs per Day
+  - Timeline: Execution time per job
+  - Trend: Failure patterns
+- [ ] APScheduler — tự chạy report lúc 23:00 độc lập
+- [ ] Export report ra PNG/HTML đính vào email
+
+### Integration Test
+- [ ] Test toàn bộ pipeline với 10+ dòng Sheet
+- [ ] Verify log DB đầy đủ (status, retry_count, error_message, drive_url)
+- [ ] Verify Slack & email notification
+
+### README & Documentation
+- [ ] `README.md` — Installation, Configuration, Architecture, How to Run, Limitations
+- [ ] Chèn ERD diagram vào README
+- [ ] Chèn Architecture diagram vào README
+
+---
+
+## NGÀY 5 — Video, Đóng gói, Nộp bài
+
+### Video Presentation (≤10 phút)
+- [ ] Viết kịch bản video theo cấu trúc: Problem → Architecture → Implementation → Results → Discussion → Future Work
+- [ ] Quay + edit video
+- [ ] Có phụ đề hoặc nói rõ ràng
+
+### Final Packaging
+- [ ] Kiểm tra `.env.example` không chứa key thật
+- [ ] Tạo thư mục nộp: `LeThanhHaiHuynh_Test Submit/`
+  - `automation/` (source + .env.example)
+  - `prompt_engineering/` (report + ảnh iteration)
+  - `database/` (schema.sql + ERD)
+  - `report_sample/` (daily report mẫu + chart)
+  - `README.md`
+  - `video_link.txt`
+- [ ] README test chạy được từ đầu (không giả định môi trường sẵn)
+
+### Submission Checklist
+- [ ] Subject email: `[AthenaStudio - Prompt Engineer] LeThanhHaiHuynh_Test Submit`
+- [ ] Tên thư mục đúng: `LeThanhHaiHuynh_Test Submit`
+- [ ] Video ≤ 10 phút
+- [ ] Không commit API key thật
+- [ ] README chạy được từ đầu
+
+---
+
+## TRẠNG THÁI TỔNG QUAN
+
+| Giai đoạn | Trạng thái |
+|---|---|
+| Ngày 1 - Design & Setup | ⬜ Chưa bắt đầu |
+| Ngày 2 - Automation Core | ⬜ Chưa bắt đầu |
+| Ngày 3 - Prompt Engineering | ⬜ Chưa bắt đầu |
+| Ngày 4 - Report & README | ⬜ Chưa bắt đầu |
+| Ngày 5 - Video & Submission | ⬜ Chưa bắt đầu |

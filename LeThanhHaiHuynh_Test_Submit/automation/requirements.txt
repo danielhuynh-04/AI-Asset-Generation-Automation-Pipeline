@@ -1,0 +1,31 @@
+# ===== AI & GOOGLE =====
+google-generativeai>=0.8.0       # Gemini API (image + text generation)
+google-api-python-client>=2.0    # Google Drive API
+google-auth>=2.0                  # Google Auth
+google-auth-oauthlib>=1.0.0       # Google OAuth2 Support
+gspread>=6.0                      # Google Sheets reader
+gTTS>=2.5                         # Google Text-to-Speech (MP3 generation, free)
+
+# ===== DATABASE =====
+sqlalchemy>=2.0                   # ORM for SQLite
+alembic>=1.13                     # DB migrations (optional)
+
+# ===== SCHEDULING =====
+apscheduler>=3.10                 # Daily report scheduler
+
+# ===== NOTIFICATIONS =====
+requests>=2.31                    # HTTP client (Slack webhooks, Pollinations API)
+python-dotenv>=1.0                # Load .env file
+
+# ===== ANALYTICS & VISUALIZATION =====
+plotly>=5.0                       # Charts for daily report
+pandas>=2.0                       # Data processing for reports
+kaleido>=0.2                      # Plotly static image export (PNG)
+
+# ===== TESTING =====
+pytest>=8.0                       # Unit testing
+pytest-mock>=3.0                  # Mocking for API calls
+
+# ===== UTILITIES =====
+Pillow>=10.0                      # Image manipulation (resize, format conversion)
+python-dateutil>=2.9              # Date utilities

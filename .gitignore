@@ -1,0 +1,41 @@
+# ─── Python ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# ─── Virtual Environments ────────────────────────────
+.venv/
+venv/
+env/
+
+# ─── Environment & Secrets (NEVER commit these!) ─────
+.env
+credentials.json
+*.json
+!.env.example
+!database/schema.sql
+
+# ─── Database files ──────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── Outputs (generated assets) ──────────────────────
+outputs/
+report_sample/*.html
+
+# ─── Logs ────────────────────────────────────────────
+*.log
+logs/
+
+# ─── IDE ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+
+# ─── OS ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db

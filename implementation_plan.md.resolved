@@ -1,0 +1,258 @@
+# AI Asset Generation Automation Pipeline
+## Implementation Plan — Athena Studio Intern Test
+
+Xây dựng end-to-end automation pipeline đọc yêu cầu từ Google Sheets, gọi AI để generate game assets (images/audio), lưu kết quả lên Google Drive, ghi log vào SQLite database, gửi thông báo qua Slack + Email, và tạo daily analytics report — tiếp cận toàn bộ như một **data pipeline có kiểm soát chất lượng**.
+
+---
+
+> [!IMPORTANT]
+> **Quyết định kỹ thuật cần biết:**
+> - Claude (Anthropic) **không sinh ảnh trực tiếp** — nếu `model=Claude`, sẽ dùng Claude để generate prompt tối ưu, sau đó chuyền sang OpenAI Images API để render. Ghi rõ điều này trong README.
+> - MP3 output dùng **OpenAI TTS** (không có yêu cầu cụ thể trong đề bài).
+> - Không bắt buộc dùng layer.ai — có thể dùng DALL·E 3 / OpenAI Image API.
+> - API keys thật **không được commit** — chỉ có `.env.example`.
+
+---
+
+## Proposed Changes
+
+### Component 1: Project Structure & Environment
+
+#### [NEW] Project root layout
+```
+athena-prompt-automation-test/
+├── src/
+│   ├── sheets_reader.py      # Google Sheets ingestion
+│   ├── validator.py          # Input validation
+│   ├── ai_generator.py       # AI generation dispatcher
+│   ├── retry_wrapper.py      # Exponential backoff decorator
+│   ├── drive_uploader.py     # Google Drive upload
+│   ├── db_logger.py          # SQLite job tracking (SQLAlchemy)
+│   ├── notifier.py           # Slack + Email notifications
+│   ├── daily_report.py       # Analytics + Plotly charts
+│   └── main.py               # Orchestrator
+├── docs/
+│   ├── Requirement_Analysis.md
+│   ├── System_Design.md
+│   └── architecture_diagram.png
+├── prompt_engineering/
+│   ├── prompt_engineering_report.md
+│   ├── asset_analysis.md     # Style/color/angle table
+│   └── iterations/           # V1/V2/V3 images per asset type
+├── database/
+│   ├── schema.sql
+│   └── erd.png
+├── report_sample/
+│   ├── daily_report.html
+│   └── charts/
+├── tests/
+│   ├── test_validator.py
+│   ├── test_ai_generator.py
+│   └── test_db_logger.py
+├── .env.example
+├── requirements.txt
+└── README.md
+```
+
+---
+
+### Component 2: Database Schema
+
+```sql
+CREATE TABLE jobs (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    sheet_row_id    INTEGER,
+    description     TEXT,
+    example_url     TEXT,
+    model           TEXT,           -- 'OpenAI' | 'Claude'
+    output_format   TEXT,           -- 'PNG' | 'JPG' | 'GIF' | 'MP3'
+    status          TEXT DEFAULT 'PENDING',  -- PENDING|RUNNING|RETRY|SUCCESS|FAILED
+    retry_count     INTEGER DEFAULT 0,
+    drive_url       TEXT,
+    error_message   TEXT,
+    execution_time_ms INTEGER,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    finished_at     TIMESTAMP
+);
+
+CREATE TABLE reports (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    report_date DATE,
+    total_jobs  INTEGER,
+    success     INTEGER,
+    failed      INTEGER,
+    avg_exec_ms FLOAT,
+    report_path TEXT,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+### Component 3: Core Modules
+
+#### [NEW] `src/sheets_reader.py`
+- Dùng `gspread` kết nối Google Sheets via service account
+- Đọc toàn bộ rows → trả về list[dict]
+- Columns: `id, description, example_url, output_format, model, status`
+- Bỏ qua rows đã `status=DONE` (idempotency)
+
+#### [NEW] `src/validator.py`
+- `validate_row(row: dict) -> ValidationResult`
+- Kiểm tra: không null description, output_format ∈ {PNG,JPG,GIF,MP3}, model ∈ {OpenAI,Claude}
+- Validate URL format nếu có example_url
+- Trả về `(is_valid: bool, error: str)`
+
+#### [NEW] `src/ai_generator.py`
+```python
+def generate_asset(description: str, model: str, output_format: str) -> bytes:
+    if model == "OpenAI":
+        return openai_generate_image(description, output_format)
+    elif model == "Claude":
+        optimized_prompt = claude_optimize_prompt(description)
+        return openai_generate_image(optimized_prompt, output_format)
+```
+- Image: OpenAI `dall-e-3`, size `1024x1024`
+- Audio (MP3): OpenAI `tts-1`, voice `alloy`
+
+#### [NEW] `src/retry_wrapper.py`
+```python
+@retry(max_attempts=3, backoff=[2, 4, 8])
+def generate_with_retry(description, model, fmt):
+    return generate_asset(description, model, fmt)
+```
+
+#### [NEW] `src/drive_uploader.py`
+- Upload vào `Outputs/{YYYY-MM-DD}/{output_format}/{job_id}_{filename}`
+- Return shareable URL
+
+#### [NEW] `src/db_logger.py`
+- `create_job(row_data) -> int` → trả về job_id
+- `update_status(job_id, status, **kwargs)` → update DB
+- `get_daily_stats(date) -> dict`
+
+#### [NEW] `src/notifier.py`
+- `notify_success(job_id, drive_url, description)` → Slack + Email
+- `notify_failure(job_id, error, retry_count)` → Slack + Email
+- Slack: POST đến webhook URL, format block message
+- Email: SMTP với `smtplib`
+
+#### [NEW] `src/daily_report.py`
+- Query jobs từ hôm nay → tính tổng, success rate, avg execution time
+- Vẽ 4 charts bằng Plotly:
+  - Pie: Success vs Failed
+  - Bar: Jobs theo giờ trong ngày
+  - Scatter: Execution time per job
+  - Line: Failure trend
+- Export HTML + PNG → gửi qua email admin
+- APScheduler trigger lúc 23:00
+
+#### [NEW] `src/main.py`
+```python
+def process_pipeline():
+    rows = sheets_reader.read_all()
+    for row in rows:
+        job_id = db_logger.create_job(row)
+        result = validator.validate(row)
+        if not result.is_valid:
+            db_logger.update(job_id, "FAILED", error=result.error)
+            notifier.notify_failure(...)
+            continue
+        try:
+            asset_bytes = generate_with_retry(row.description, row.model, row.format)
+            url = drive_uploader.upload(asset_bytes, ...)
+            db_logger.update(job_id, "SUCCESS", drive_url=url)
+            notifier.notify_success(...)
+        except Exception as e:
+            db_logger.update(job_id, "FAILED", error=str(e))
+            notifier.notify_failure(...)
+```
+
+---
+
+### Component 4: Prompt Engineering
+
+#### Asset Style Analysis (từ sample assets đã quan sát)
+
+| Thuộc tính | Quan sát |
+|---|---|
+| Art style | Semi-realistic cartoon game art, smooth gradients, glossy shading |
+| Color palette | Deep purple/gold (Background), Sky blue + Gold border (Frames), Vivid multicolor (Balls) |
+| Camera view | Front-facing characters, straight-on for UI elements |
+| Lighting | Soft ambient light, subtle inner glow on buttons/balls |
+| Background | Transparent PNG cho assets, full-scene cho backgrounds |
+| Detail level | High detail on characters, medium-high on UI elements |
+
+#### Prompt Structure Template
+```
+[Subject], [Style: semi-realistic cartoon game art, smooth cel-shading],
+[Palette: specific hex colors], [Lighting: soft ambient light, inner glow],
+[Composition: centered, front-facing], [Technical: transparent background, 512x512,
+game-asset-ready, high detail]
+```
+
+#### Asset Types cần generate (≥3 iterations mỗi loại)
+1. **New Character** — khác gender/trang phục so với mẫu, cùng style
+2. **New Bingo Balls** — màu mới (Orange/Pink/Teal), cùng glossy style
+3. **UI Button** — variant màu mới (Green/Purple), cùng gold-border frame
+4. **Bingo Card Frame** — variant mới (Red-themed), cùng style
+5. **Background Scene** — stage scene mới, cùng theatrical lighting palette
+
+---
+
+### Component 5: Testing
+
+#### [NEW] `tests/test_validator.py`
+- Test null description → FAILED
+- Test invalid output_format → FAILED
+- Test valid row → PASSED
+
+#### [NEW] `tests/test_db_logger.py`
+- Test create_job → returns id
+- Test update_status → DB reflects changes
+
+#### [NEW] `tests/test_ai_generator.py`
+- Mock OpenAI API → test routing logic (OpenAI vs Claude path)
+
+---
+
+## Verification Plan
+
+### Automated Tests
+
+```bash
+# Cài dependencies
+pip install -r requirements.txt
+
+# Chạy unit tests
+python -m pytest tests/ -v
+
+# Expected: 3 test files, all PASSED
+```
+
+### Manual Verification
+
+**Test 1: End-to-end pipeline**
+1. Điền Google Sheet với 10 dòng (8 valid + 2 invalid)
+2. Chạy `python src/main.py`
+3. Kiểm tra: DB có 10 records, 8 SUCCESS + 2 FAILED
+4. Kiểm tra: Google Drive có 8 files trong `Outputs/{date}/`
+5. Kiểm tra: Slack có 10 messages (8 success + 2 failure)
+
+**Test 2: Retry mechanism**
+1. Set OpenAI timeout thấp (1 giây) trong `.env`
+2. Chạy pipeline → job nên RETRY 3 lần rồi FAILED
+3. Kiểm tra DB: `retry_count = 3`, `status = FAILED`
+
+**Test 3: Daily Report**
+1. Chạy `python src/daily_report.py --run-now`
+2. Kiểm tra file HTML xuất ra trong `report_sample/`
+3. Kiểm tra email admin nhận được report
+
+**Test 4: Prompt Engineering Evaluation**
+1. So sánh AI output với asset gốc trên 5 tiêu chí (1-5 scale)
+2. Score mỗi tiêu chí và ghi vào `prompt_engineering_report.md`
+3. Nếu score < 3 → adjust prompt → iterate
+
+### Browser/UI Verification
+Không có UI trong scope bài này — verification qua log files và DB inspection.
