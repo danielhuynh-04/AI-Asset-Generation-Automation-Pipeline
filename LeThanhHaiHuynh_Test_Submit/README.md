@@ -286,6 +286,8 @@ Google Drive mirror: `Outputs/{date}/{format}/{filename}`
 ├── docs/                    # Requirement analysis, system design
 ├── database/                # schema.sql + ERD
 ├── prompt_engineering/      # Report + iteration images
+│   ├── PROMPT_ENGINEERING_REPORT_EN.md
+│   ├── prompt_engineering_report.md
 │   └── iterations/          # V1/V2/V3 per asset type
 ├── tests/                   # pytest unit tests
 ├── report_sample/           # Sample daily report output
