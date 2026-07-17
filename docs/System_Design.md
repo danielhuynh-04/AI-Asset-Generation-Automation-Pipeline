@@ -58,7 +58,6 @@ sequenceDiagram
     System->>Storage: 2. Fetch PENDING Rows
     Storage-->>System: Return Rows Data
     
-    rect rgb(0, 50, 100)
     Note over System, AI: Execution Loop (Concurrent)
     System->>System: 3. Validate Data Format
     
@@ -76,16 +75,13 @@ sequenceDiagram
         System->>Notif: 9. Trigger notify_failure()
         Notif-->>User: Slack/Email Error Alert
     end
-    end
     
-    rect rgb(50, 0, 50)
     Note over System, Notif: Asynchronous Daily Reporting
     System-->>System: 10. Trigger at 23:00 (APScheduler)
     System->>Storage: 11. Query Daily Stats
     System->>System: 12. Generate Plotly HTML Dashboard
     System->>Notif: 13. Send Dashboard Summary
     Notif-->>User: Final Daily Report Email
-    end
 ```
 
 ## 3. Core Design Principles Applied

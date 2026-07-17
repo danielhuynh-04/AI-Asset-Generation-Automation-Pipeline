@@ -54,33 +54,84 @@ gantt
 
 ---
 
-## 🏗️ Workflow Architecture
+## 🏗️ System Architecture & Workflow
 
+Đây là kiến trúc luồng dữ liệu chính của AI Asset Pipeline. Hệ thống được thiết kế với tư duy Module hóa cao (Decoupled architecture) và khả năng phục hồi lỗi (Fault-tolerant).
+
+```mermaid
+graph TD
+    A[Google Sheets<br>Data Input] -->|Read Pending Rows| B(src/sheets_reader.py);
+    B -->|Raw Rows| C{src/validator.py};
+    
+    C -- Invalid --> D[src/db_logger.py<br>Mark FAILED];
+    C -- Valid --> E(src/main.py<br>ThreadPoolExecutor);
+    
+    E -->|Dispatch| F[src/ai_generator.py];
+    
+    subgraph AI Generation Engine
+       F -->|Try 1: Gemini Pro| G[Google Gemini API]
+       G -.->|Quota Exceeded| H[Pollinations AI Fallback]
+       G -.->|Timeout| I[retry_wrapper.py<br>Exponential Backoff]
+    end
+    
+    G --> J(Asset Generated);
+    H --> J;
+    
+    J -->|Upload| K[src/drive_uploader.py];
+    K -->|Store| L[(Google Drive)];
+    
+    J -->|Log Status| D;
+    D -->|Write| M[(SQLite Database)];
+    
+    J -->|URL & Status| N[src/notifier.py];
+    N -->|Slack Webhook| O[Slack Alerts];
+    N -->|OAuth 2.0| P[Gmail Alerts];
+    
+    Q((APScheduler)) -.->|Trigger 23:00| R[src/daily_report.py];
+    M -.->|Query Stats| R;
+    R -->|Plotly Charts| S[HTML Dashboard];
+    S --> P;
 ```
-Google Sheets (input: description, output_format, model)
-        │
-        ▼
-[1] sheets_reader.py — Extract rows, skip DONE (idempotency)
-        │
-        ▼
-[2] validator.py — Validate fields, normalize, reject invalid
-        │  (NULL description → FAIL | Invalid format → FAIL | Bad URL → WARN)
-        ▼
-[3] ai_generator.py — Generate asset
-        │  (Gemini Imagen 3 → fallback Pollinations.ai | gTTS for MP3)
-        │  (Prompt optimized via Gemini Pro text first)
-        │  ↳ retry_wrapper.py — 3 retries [2s, 4s, 8s backoff] on failure
-        │
-        ├─────────────────────────┬──────────────────────────
-        ▼                         ▼                          ▼
-[4] drive_uploader.py       db_logger.py                notifier.py
-    Outputs/{date}/{fmt}/    jobs table (SQLite)          Slack webhook
-    shareable URL            PENDING→RUNNING→             + Email SMTP
-                             SUCCESS/FAILED
-        │
-        ▼
-[5] daily_report.py — Plotly charts (Pie/Bar/Scatter) → HTML → Email admin
-    (APScheduler: 23:00 daily, runs independently from main pipeline)
+
+## 🔄 Business Process Model (BPMN)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant System as Orchestrator (main.py)
+    participant AI as AI Services (Gemini/Pollinations)
+    participant Storage as Storage (Drive/SQLite)
+    participant Notif as Notifications (Slack/Email)
+
+    User->>Storage: 1. Input Prompt to Google Sheets
+    System->>Storage: 2. Fetch PENDING Rows
+    Storage-->>System: Return Rows Data
+    
+    Note over System, AI: Execution Loop (Concurrent)
+    System->>System: 3. Validate Data Format
+    
+    alt is Valid
+        System->>AI: 4. Request Asset Generation
+        AI-->>System: Return Image/Audio Bytes (Success)
+        System->>Storage: 5. Upload File to Google Drive
+        Storage-->>System: Return Shareable URL
+        System->>Storage: 6. Update SQLite Status (SUCCESS)
+        System->>Notif: 7. Trigger notify_success()
+        Notif-->>User: Slack/Email Success Alert
+    else is Invalid or AI Failed
+        AI-->>System: Timeout/Error after 3 Retries
+        System->>Storage: 8. Update SQLite Status (FAILED)
+        System->>Notif: 9. Trigger notify_failure()
+        Notif-->>User: Slack/Email Error Alert
+    end
+    
+    Note over System, Notif: Asynchronous Daily Reporting
+    System-->>System: 10. Trigger at 23:00 (APScheduler)
+    System->>Storage: 11. Query Daily Stats
+    System->>System: 12. Generate Plotly HTML Dashboard
+    System->>Notif: 13. Send Dashboard Summary
+    Notif-->>User: Final Daily Report Email
 ```
 
 ---
