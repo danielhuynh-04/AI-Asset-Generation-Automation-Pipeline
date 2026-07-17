@@ -4,9 +4,9 @@
 
 > **Tiếp cận:** Toàn bộ automation workflow được thiết kế như một **data pipeline có kiểm soát chất lượng** — validate input tại nguồn, kiểm soát lỗi tại từng bước, log đầy đủ state, và đánh giá kết quả bằng số liệu cụ thể. Nguyên tắc tôi đã áp dụng khi xây dựng hệ thống dự báo dịch bệnh Dengue với R² = 0.966.
 
-## 🔥 Senior Architecture Highlights (System Mindset)
+## 🔥 Production-Ready Architecture (System Mindset)
 
-Bài test này không dừng lại ở mức kịch bản chạy tự động (Scripting) mà được thiết kế theo tư duy của một **Data Pipeline cấp độ Enterprise (Senior Level)**:
+Bài test này không dừng lại ở mức kịch bản chạy tự động (Scripting) mà được thiết kế theo tư duy của một **Data Pipeline tiêu chuẩn thực tế (Production-ready)**:
 
 1. **Multi-threaded I/O (Xử lý Đa Luồng):** Chuyển vòng lặp xử lý tuần tự sang `concurrent.futures.ThreadPoolExecutor(max_workers=5)`, giúp gọi API AI và Google Drive **song song**, xử lý hàng trăm tấm ảnh trong không gian thời gian bị block thấp nhất.
 2. **Robust LLM Fallback (Chống đứt đoạn dịch vụ):** Áp dụng chiến thuật Multi-Model. Mặc định gọi *Gemini Pro*. Nếu Gemini sập hoặc hết Quota, hệ thống tự động Fallback sang **ChatGPT (thông qua Pollinations Text API)** hoàn toàn miễn phí, đảm bảo Uptime đạt 99.9%.

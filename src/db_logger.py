@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DB_PATH = os.getenv("DB_PATH", "pipeline.db")
-# Senior Level: Bật check_same_thread=False và timeout lớn để tránh lỗi "database is locked" khi ThreadPool writes
+# Production Level: Bật check_same_thread=False và timeout lớn để tránh lỗi "database is locked" khi ThreadPool writes
 engine = create_engine(
     f"sqlite:///{DB_PATH}", 
     echo=False,
