@@ -55,8 +55,8 @@ copy_file(os.path.join(src_dir, "database", "schema.sql"), os.path.join(dst_dir,
 copy_file(os.path.join(src_dir, "README.md"), os.path.join(dst_dir, "README.md"))
 
 # Copy Video Script
-copy_file(os.path.join(src_dir, "KICH_BAN_THUYET_TRINH_VIDEO.md"), os.path.join(dst_dir, "KICH_BAN_THUYET_TRINH_VIDEO.md"))
-copy_file(os.path.join(src_dir, "VIDEO_SCRIPT_ENGLISH.md"), os.path.join(dst_dir, "VIDEO_SCRIPT_ENGLISH.md"))
+copy_file(os.path.join(src_dir, "SCRIPT_CHI_TIET_TIENG_VIET.md"), os.path.join(dst_dir, "SCRIPT_CHI_TIET_TIENG_VIET.md"))
+copy_file(os.path.join(src_dir, "SCRIPT_DETAILED_ENGLISH.md"), os.path.join(dst_dir, "SCRIPT_DETAILED_ENGLISH.md"))
 
 # Create video link txt
 with open(os.path.join(dst_dir, "video_link.txt"), "w", encoding="utf-8") as f:
