@@ -43,6 +43,7 @@ copy_file(os.path.join(src_dir, "README.md"), os.path.join(dst_dir, "automation"
 
 # Copy prompt engineering
 copy_file(os.path.join(src_dir, "prompt_engineering", "prompt_engineering_report.md"), os.path.join(dst_dir, "prompt_engineering", "prompt_engineering_report.md"))
+copy_file(os.path.join(src_dir, "prompt_engineering", "PROMPT_ENGINEERING_REPORT_EN.md"), os.path.join(dst_dir, "prompt_engineering", "PROMPT_ENGINEERING_REPORT_EN.md"))
 try:
     shutil.copytree(os.path.join(src_dir, "prompt_engineering", "iterations"), os.path.join(dst_dir, "prompt_engineering", "iterations"), dirs_exist_ok=True)
 except Exception as e:
