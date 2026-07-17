@@ -69,13 +69,16 @@
 - **[5:10]** When you see a `MOCK_TIMEOUT` line, use your mouse to highlight (select) that line.
 
 ### Speech:
-> "Now I will run the pipeline live. In my Google Sheet, I placed a test row with the keyword `MOCK_TIMEOUT` to simulate a network error.
+> "Now I will run the pipeline live. 
+> 
+> **(Point at the 429 Too Many Requests and Timeout errors in terminal)**
+> Since my Multi-threaded workers are blasting multiple concurrent AI requests using Free-Tier accounts, you will immediately see red warning lines in the terminal like **HTTP Error 429: Too Many Requests** or **Quota Exceeded**. 
+> I want to clarify: this is NOT a bug. This is my system's **Resilience logic** in action! A true production data pipeline must survive API rate limits without crashing (Zero-Crash).
+> When throttled by a 429 error, the code activates **Exponential Backoff**, pauses, and gracefully tries again or falls back to a secondary AI. 
+> If a job totally exhausts its 3 retries, it does not drop the data. It enforces two-way syncing by **writing a red FAILED status directly back to Google Sheets**, saving to the internal Database, and emailing the Admin instantly.
 >
-> **(Point at SUCCESS lines)**
-> As you can see, valid rows are processed successfully. Images are saved to Google Drive, and the system sends a Success notification through Slack and Email.
->
-> **(Highlight the MOCK_TIMEOUT line)**
-> And here, this row triggered a Timeout. But the system did NOT crash. It is retrying — attempt 1... attempt 2... attempt 3 — with increasing wait times. Finally, it logs the FAILED status into the SQLite Database and sends an Error alert email to the Admin immediately."
+> **(Point at the SUCCESS lines)**
+> Thanks to this brute-force resilience, the pipeline still filters out valid jobs amidst the chaos, successfully generating high-quality images and uploading them safely to Google Drive."
 
 ---
 

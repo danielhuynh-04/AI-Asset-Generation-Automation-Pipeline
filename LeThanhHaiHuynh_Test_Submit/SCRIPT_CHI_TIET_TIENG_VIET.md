@@ -69,13 +69,16 @@
 - **[5:10]** Khi thấy dòng `MOCK_TIMEOUT`, dùng chuột highlight (bôi đen) dòng đó.
 
 ### Lời thoại:
-> "Bây giờ em chạy Demo trực tiếp. Trong Google Sheet, em đã cố tình cài sẵn 1 dòng chứa từ khoá `MOCK_TIMEOUT` để giả lập lỗi mạng.
+> "Bây giờ em chạy Demo trực tiếp hệ thống Data Pipeline này. 
+> 
+> **(Bôi đen dòng báo lỗi 429 bị chặn Limit hiển thị trên Terminal)**
+> Khi hệ thống Đa luồng nã liên tục nhiều Job cùng lúc vào Free Tier AI, các anh chị sẽ thấy Terminal nổi lên vô số các dòng cảnh báo cảnh giác đỏ như **HTTP Error 429: Too Many Requests** hoặc **Quota Exceeded**.
+> Đây không phải là Bug. Đây chính là hệ thống Đàn Hồi (Resilience) mà em cố tình giăng ra! Một Data Pipeline thực thụ phải hứng chịu được sóng gió API Rate Limit mà không bị ngắt quãng (Zero-Crash). 
+> Khi bị văng lỗi 429 Timeout, hệ thống kích hoạt **Exponential Backoff**, lùi lại vài giây rồi tự gọi tiếp, hoặc quay xe Fallback sang mô hình thứ 2. 
+> Nếu sau 3 lần vẫn thất bại do hạ tầng, nó không bỏ trôi dữ liệu mà sẽ bẻ lái **bắn trạng thái FAILED lật ngược trở lại Google Sheets** để Admin đối soát hai chiều, đồng thời nã Email thông báo lỗi ngay lập tức.
 >
-> **(Chỉ vào các dòng SUCCESS)**
-> Các anh chị thấy, những dòng hợp lệ đều được sinh ảnh thành công, lưu lên Google Drive, và hệ thống đã gửi Thông báo thành công qua Slack và Email.
->
-> **(Bôi đen dòng MOCK_TIMEOUT)**
-> Còn đây, dòng này bị Timeout. Nhưng hệ thống không hề sập. Nó đang tự retry lần 1... lần 2... lần 3 với khoảng cách thời gian tăng dần. Sau cùng nó lưu gọn gàng trạng thái FAILED vào Database và gửi Email thông báo lỗi cho Admin ngay tức thì."
+> **(Chỉ vào các dòng báo SUCCESS)**
+> Nhờ tính chịu đòn lỳ lợm này, hệ thống của em vẫn âm thầm sàng lọc thành công các dòng dữ liệu hợp lệ xen kẽ trong cơn hoảng loạn, sinh ảnh xong và bốc chúng tải lên Google Drive cực kỳ an toàn."
 
 ---
 
