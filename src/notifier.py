@@ -1,28 +1,30 @@
 """
-notifier.py — Slack + Email notification module
+notifier.py — Slack + Email notification module (Gmail API OAuth 2.0)
 Gửi thông báo real-time cho từng job SUCCESS/FAILURE.
 """
 import os
 import logging
-import smtplib
+import base64
 import json
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from email.message import EmailMessage
 from typing import Optional
 
 import requests
 from dotenv import load_dotenv
 
+# OAuth 2.0 imports
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+
 load_dotenv()
 logger = logging.getLogger(__name__)
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
-SMTP_HOST         = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT         = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER         = os.getenv("SMTP_USER")
-SMTP_PASSWORD     = os.getenv("SMTP_PASSWORD")
 EMAIL_ADMIN       = os.getenv("EMAIL_ADMIN")
 
+GMAIL_SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
 
 # ─── Slack ────────────────────────────────────────────────────────────────────
 
@@ -47,26 +49,54 @@ def _send_slack(blocks: list) -> bool:
         return False
 
 
-# ─── Email ────────────────────────────────────────────────────────────────────
+# ─── Email (Gmail API OAuth 2.0) ───────────────────────────────────────────────
+
+def _get_gmail_service():
+    """Lấy Service qua OAuth 2.0 thay vì SMTP App Password."""
+    creds = None
+    if os.path.exists("gmail_token.json"):
+        creds = Credentials.from_authorized_user_file("gmail_token.json", GMAIL_SCOPES)
+        
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            client_secret_path = os.getenv("GOOGLE_OAUTH_CLIENT_JSON", "client_secret.json")
+            if not os.path.exists(client_secret_path):
+                logger.debug(f"[EMAIL] Missing {client_secret_path} for Gmail OAuth — skipping email.")
+                return None
+            flow = InstalledAppFlow.from_client_secrets_file(client_secret_path, GMAIL_SCOPES)
+            creds = flow.run_local_server(port=0)
+            
+        with open("gmail_token.json", "w") as token_file:
+            token_file.write(creds.to_json())
+
+    return build("gmail", "v1", credentials=creds)
+
 
 def _send_email(subject: str, html_body: str, to: Optional[str] = None) -> bool:
-    """Gửi HTML email qua SMTP."""
+    """Gửi HTML email qua Gmail API."""
     to = to or EMAIL_ADMIN
-    if not all([SMTP_USER, SMTP_PASSWORD, to]):
-        logger.debug("[EMAIL] SMTP not configured — skipping")
+    if not to:
+        logger.debug("[EMAIL] EMAIL_ADMIN not configured — skipping")
         return False
+
+    service = _get_gmail_service()
+    if not service:
+        return False
+
     try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = subject
-        msg["From"]    = SMTP_USER
-        msg["To"]      = to
-        msg.attach(MIMEText(html_body, "html"))
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.ehlo()
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(SMTP_USER, to, msg.as_string())
-        logger.info(f"[EMAIL] Sent to {to}: {subject}")
+        message = EmailMessage()
+        message.set_content("Please enable HTML to view this message.")
+        message.add_alternative(html_body, subtype="html")
+        message["To"] = to
+        message["Subject"] = subject
+        
+        encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+        create_message = {"raw": encoded_message}
+        
+        service.users().messages().send(userId="me", body=create_message).execute()
+        logger.info(f"[EMAIL] Sent via Gmail API to {to}: {subject}")
         return True
     except Exception as e:
         logger.error(f"[EMAIL] Send failed: {e}")

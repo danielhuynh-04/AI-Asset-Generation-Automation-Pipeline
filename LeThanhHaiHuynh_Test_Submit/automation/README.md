@@ -14,6 +14,44 @@ Bài test này đã được nâng cấp với các tiêu chuẩn thiết kế c
 
 ---
 
+## 📅 5-Day Project Timeline (Execution Plan)
+
+> Thể hiện tư duy Quản lý dự án (Project Management) và phân bổ nguồn lực khoa học, đảm bảo giao hàng (delivery) đúng deadline.
+
+```mermaid
+gantt
+    title Athena Asset Automation Pipeline 5 Days Plan
+    dateFormat  YYYY-MM-DD
+    axisFormat  %Y-%m-%d
+    
+    section Day 1 Setup
+    Requirement Analysis     :done,    des1, 2026-07-13, 1d
+    System Design & ERD      :done,    des2, 2026-07-13, 1d
+    Environment Setup        :done,    des3, 2026-07-13, 1d
+    
+    section Day 2 Core
+    Modules coding           :done,    dev1, 2026-07-14, 1d
+    Database & Retry Logic   :done,    dev2, 2026-07-14, 1d
+    Integration & Tests      :done,    dev3, 2026-07-14, 1d
+    
+    section Day 3 Prompting
+    Asset Style Analysis     :done,    pe1, 2026-07-15, 1d
+    Iterative Prompting V1X  :done,    pe2, 2026-07-15, 1d
+    Prompt Eng Report        :done,    pe3, 2026-07-15, 1d
+    
+    section Day 4 Reporting
+    Daily Report Plotly      :done,    rep1, 2026-07-16, 1d
+    Slack Notifications      :done,    rep2, 2026-07-16, 1d
+    Documentation README     :done,    rep3, 2026-07-16, 1d
+    
+    section Day 5 Submission
+    Final Packaging Cleanup  :done,    sub1, 2026-07-17, 1d
+    Video Presentation       :active,  sub2, 2026-07-17, 1d
+    Submit to HR             :active,  sub3, 2026-07-17, 1d
+```
+
+---
+
 ## 🏗️ Workflow Architecture
 
 ```
