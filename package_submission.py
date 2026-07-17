@@ -54,6 +54,9 @@ copy_file(os.path.join(src_dir, "database", "schema.sql"), os.path.join(dst_dir,
 # Copy README to root
 copy_file(os.path.join(src_dir, "README.md"), os.path.join(dst_dir, "README.md"))
 
+# Copy Video Script
+copy_file(os.path.join(src_dir, "KICH_BAN_THUYET_TRINH_VIDEO.md"), os.path.join(dst_dir, "KICH_BAN_THUYET_TRINH_VIDEO.md"))
+
 # Create video link txt
 with open(os.path.join(dst_dir, "video_link.txt"), "w", encoding="utf-8") as f:
     f.write("Xin chào Ban tuyển dụng Athena Studio,\n\nLink Video Present bài làm (dưới 10 phút):\nhttps://... (Ứng viên sẽ paste link Youtube/Google Drive vào đây)\n")
