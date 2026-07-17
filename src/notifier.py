@@ -6,6 +6,7 @@ import os
 import logging
 import base64
 import json
+import mimetypes
 from email.message import EmailMessage
 from typing import Optional
 
@@ -74,8 +75,8 @@ def _get_gmail_service():
     return build("gmail", "v1", credentials=creds)
 
 
-def _send_email(subject: str, html_body: str, to: Optional[str] = None) -> bool:
-    """Gửi HTML email qua Gmail API."""
+def _send_email(subject: str, html_body: str, to: Optional[str] = None, attachment_path: Optional[str] = None) -> bool:
+    """Gửi HTML email qua Gmail API, hỗ trợ gửi kèm file."""
     to = to or EMAIL_ADMIN
     if not to:
         logger.debug("[EMAIL] EMAIL_ADMIN not configured — skipping")
@@ -91,6 +92,14 @@ def _send_email(subject: str, html_body: str, to: Optional[str] = None) -> bool:
         message.add_alternative(html_body, subtype="html")
         message["To"] = to
         message["Subject"] = subject
+        
+        if attachment_path and os.path.exists(attachment_path):
+            ctype, encoding = mimetypes.guess_type(attachment_path)
+            if ctype is None or encoding is not None:
+                ctype = "application/octet-stream"
+            maintype, subtype = ctype.split("/", 1)
+            with open(attachment_path, "rb") as fp:
+                message.add_attachment(fp.read(), maintype=maintype, subtype=subtype, filename=os.path.basename(attachment_path))
         
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
         create_message = {"raw": encoded_message}
@@ -178,7 +187,7 @@ def notify_daily_report(report_path: str, stats: dict):
       <tr><td>Success Rate</td><td><b>{stats.get('success_rate', 0)}%</b></td></tr>
       <tr><td>Avg Execution Time</td><td>{stats.get('avg_exec_ms', 0)}ms</td></tr>
     </table>
-    <p>Full report: {report_path}</p>
+    <p><i>Full HTML report is attached to this email.</i></p>
     """
-    _send_email(title, html)
+    _send_email(title, html, attachment_path=report_path)
     logger.info(f"[NOTIFIER] Daily report sent for {stats.get('date')}")
