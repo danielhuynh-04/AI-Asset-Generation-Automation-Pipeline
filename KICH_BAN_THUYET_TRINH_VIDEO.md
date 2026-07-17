@@ -1,52 +1,51 @@
-# 🎬 KỊCH BẢN VIDEO THUYẾT TRÌNH - ATHENA STUDIO INTERN TEST
-*Thời lượng tối đa: 10 phút. Mục tiêu: Thể hiện phong thái tự tin, khiêm nhường nhưng am hiểu sâu sắc về kiến trúc hệ thống (System Mindset).*
+# 🎬 KỊCH BẢN ĐỌC THUYẾT TRÌNH CHI TIẾT DÀNH CHO ỨNG VIÊN
+*(Hướng dẫn: Phần trong ngoặc vuông **[...]** là hành động tay. Phần chữ bình thường là LỜI NÓI bạn sẽ ĐỌC trực tiếp vút ra khỏi miệng lồng tiếng cho video. Đọc thật dõng dạc và nhấn nhá các từ in đậm).*
 
 ---
 
-## 1. Mở đầu (0:00 - 1:00)
-**[Hiển thị: Slide Giới thiệu / Portfolio]**
-- Xin chào các anh chị ban giám khảo Athena Studio. Em là Lê Thanh Hải Huỳnh, ứng viên cho vị trí Prompt Engineer / Automation Engineer Intern.
-- Với định hướng phát triển bản thân thành một Kỹ sư Tự động hóa Dữ liệu (Data Automation Engineer), em không tiếp cận bài Test này như một kịch bản code chạy một lần (one-off script). 
-- Thay vào đó, em đã thiết kế toàn bộ luồng xử lý này như một **Mạng lưới Data Pipeline chuẩn Production-Ready**, nơi mọi nút thắt (bottlenecks) đều được dự phòng rủi ro kỹ lưỡng.
+## 1. Mở Đầu (0:00 - 1:00)
+**[Mở Slide giới thiệu bản thân hoặc Hình ảnh Title bài Test]**
+"Xin chào các anh chị ban giám khảo Athena Studio. Em là Lê Thanh Hải Huỳnh, ứng tuyển cho vị trí Prompt Engineer và Automation Engineer Intern.
+Trong dự án này, em không tiếp cận bài toán theo hướng chỉ viết một đoạn script chạy tuyến tính bình thường. Mục tiêu của em là xây dựng một **Quy trình Dữ Liệu (Data Pipeline)** chuẩn mực, sẵn sàng cho môi trường thực tế (Production-ready). Sau đây, em xin phép dùng Sơ đồ Kiến trúc để minh họa cho phần thiết kế hệ thống của mình."
 
 ---
 
-## 2. Phần A - Kiến trúc Automation (1:00 - 4:00)
-**[Hiển thị: Cuộn File README.md trên Github tới phần Sơ đồ Hệ thống (Diagram & BPMN)]**
-- Để giải quyết bài toán tự động sinh Asset, hệ thống của em vận hành qua 5 lõi chính. Như các anh chị thấy trên Github ở mục README, em đã trực tiếp vẽ 2 sơ đồ khối High-Level Architecture và BPMN bằng code Mermaid để thể hiện rõ luồng dữ liệu.
-- Về mặt xử lý, thay vì chờ mòn mỏi sinh từng ảnh, em áp dụng **ThreadPoolExecutor (Xử lý Đa Luồng)** để gọi API sinh hàng chục ảnh cùng lúc.
-- **Tính toán Edge Case 1 (Lỗi Database Lock):** Khi lưu kết quả từ nhiều luồng vào SQLite, lỗi Deadlock rất dễ xảy ra. Em đã tinh chỉnh SQLAlchemy bằng cờ `check_same_thread=False` để tạo ra một State Machine an toàn tuyệt đối.
-- **Tính toán Edge Case 2 (Sập API):** Nếu Google Gemini hết Quota hoặc bị lỗi mạng thì sao? Code của em sẽ tự động kích hoạt **Cơ chế Fallback (Quay xe) sang ChatGPT (Pollinations Flux AI)**. Điều này giúp hệ thống đạt Uptime gần như tuyệt đối mà không cần can thiệp thủ công.
-- **Bảo vệ Idempotency (Tính Lặp An Toàn):** Pipeline của em quét Sheet và bỏ qua các Jobs đã đánh dấu `DONE`. Admin có thể ngắt điện giữa chừng, khi bật lại, hệ thống sẽ chạy tiếp dòng chưa xong chứ không bao giờ sinh trùng ảnh gây tốn tiền API.
+## 2. Giải thích Architecture Diagram & BPMN (1:00 - 4:30)
+**[Cuộn trang README trên Github tới phần: Tái hiện rõ 2 hình ảnh Architecture Diagram và BPMN]**
+"(Rê chuột vào hình High-Level Architecture Diagram) 
+Như các anh chị thấy ở sơ đồ luồng dữ liệu này, em đã bóc tách kiến trúc hệ thống (Decoupling) thành các module độc lập. 
+Dữ liệu đầu vào từ Google Sheets sẽ phải đi qua trạm kiểm duyệt **Validator** trước. Nó giúp lọc bỏ 100% rác dữ liệu trước khi hệ thống tốn tài nguyên gọi API xử lý (tiết kiệm chi phí).
+
+Sau khi dữ liệu an toàn, hệ thống sẽ sử dụng **ThreadPoolExecutor** để xử lý nhiều ảnh song song (Đa Luồng).
+(Trỏ chuột vào ô AI Generation Engine)
+Điểm đặc biệt nhất trong lõi sinh ảnh AI này là cơ chế **Fallback**. Do tài khoản Gemini chỉ cho phép sinh giới hạn số lượng ảnh miễn phí trong ngày, em đã thiết kế thêm một module dự phòng. Nếu Gemini báo lỗi Quota, mã nguồn sẽ tự động 'Quay xe' (Fallback) để dùng Flux AI từ Pollinations hoàn toàn trơn tru. Điều này giúp hệ thống đạt thời gian hoạt động Uptime gần như tuyệt đối 99.9% mà không bị sập (Crash).
+
+(Kéo xuống phần BPMN Sequence Diagram)
+Sang đến biểu đồ luồng nghiệp vụ BPMN, các anh chị sẽ thấy em chia thành 2 chu trình rõ rệt. Chu trình sinh ảnh ở khối (Execution Loop) hoạt động hoàn toàn độc lập với Chu trình Báo Cáo. Em dùng toán tử **APScheduler** để lập lịch tự động kích hoạt tính năng tính toán KPI và vẽ biểu đồ gửi mail vào đúng 23:00 hằng ngày, không gây ảnh hưởng đến phần lõi sinh ảnh."
 
 ---
 
-## 3. Phần A - Demo & Bảo mật (4:00 - 6:00)
-**[Hiển thị: Mở Terminal VS Code, Gõ lệnh `python src/main.py`]**
-- Dạ, sau đây em xin phép chạy Demo. Trong Google Sheet, em có cài cắm từ khoá `MOCK_TIMEOUT` ở một dòng cố định.
-- *(Chỉ vào màn hình Terminal)* Như các anh chị thấy, khi bắt gặp lỗi Timeout, hệ thống không Crash mà kích hoạt bộ điếm giờ (Exponential Backoff): tự chờ 2 giây, rồi thử lại 4 giây. Sau 3 lần thất bại, nó mới đánh dấu FAILED và gửi Cảnh báo thất bại Tức thời.
-- **Bảo mật Enterprise Zero-Trust:** Về phần gửi Cảnh báo và Báo cáo qua Email, em KHÔNG SỬ DỤNG Mật khẩu Ứng dụng (App Password) cấp qua giao thức SMTP cũ vì cực kỳ rủi ro rò rỉ. Thay vào đó, em ứng dụng luồng **Google OAuth 2.0 Web Consent (Gmail API)**. Admin chỉ cần click Allow trên trình duyệt ở lần chạy đầu tiên, script sẽ giữ một Token an toàn và tự động chạy ngầm mãi mãi về sau. 
+## 3. Demo Code và Giải thích Bảo mật (4:30 - 7:00)
+**[Mở màn hình VS Code Terminal, gõ lệnh `python src/main.py`]**
+"Bây giờ, em xin phép chạy Demo. Trong Google Sheet, em có cài cắm từ khoá `MOCK_TIMEOUT` ở một dòng cố định để test hệ thống.
+(Chỉ vào những dòng chữ Warnings/Errors hiện lên terminal)
+Như các anh chị đang thấy! Hệ thống bắt gặp mạng lỗi nhưng không hề bị sập màn hình đỏ. Nó tự động kích hoạt chức năng **Exponential Backoff** - tự đợi 2 giây, rồi thử lại đợi 4 giây. Sau 3 lần thất bại, nó lưu gọn gàng Trạng thái FAILED vào Database SQLite. Để giải quyết rủi ro ghi đè khi chạy Đa Luồng, Database đã được em bật cờ check Same Thread tắt đi.
+
+Về vấn đề Báo Cáo, em đã loại bỏ phương thức khai báo Passwords SMTP cũ để chống bị đánh cắp thông tin. Em ứng dụng **Google OAuth 2.0 Web Consent (Gmail API)**. Nhờ đó, bảo mật Email của hệ thống nay đã đạt độ an toàn tuyệt đối (Zero-Trust Security)."
 
 ---
 
-## 4. Phần A - Daily Report (6:00 - 7:00)
-**[Hiển thị: Gõ lệnh `python src/daily_report.py --run-now`, mở file HTML bằng trình duyệt]**
-- Cuối cùng, thay vì gửi một núi Log cứng nhắc, em xây dựng module Analytics riêng biệt chạy bằng toán tử **APScheduler** vào đúng 23:00 đêm hằng ngày.
-- *(Chỉ vào Dashboard HTML trên trình duyệt)* Báo cáo xuất ra dưới dạng đồ thị Interactive Plotly (với đầy đủ biểu đồ Tròn, Cột, Scatter) để đo lường tỷ lệ Thành công và Thời gian Thực thi (Execution Time). Dashboard này được nhúng tự động gửi thẳng vào hộp thư Giám đốc.
+## 4. Báo Cáo & Prompt Engineering (7:00 - 9:00)
+**[Gõ lệnh `python src/daily_report.py --run-now` rồi mở File HTML báo cáo lên trên Browser]**
+"Và đây là Báo cáo tự động (Daily Report) dạng HTML. Em sử dụng bộ thư viện đồ thị Plotly để vẽ ra Biểu đồ tương tác, tổng hợp toàn bộ Tỉ lệ Thành công (Success Rate), Tần suất Lỗi, Tốc độ chạy trung bình... Bảng điều khiển này cũng gửi tự động vào hộp thư Admin để theo dõi hàng ngày.
+
+**[Mở File `prompt_engineering/prompt_engineering_report.md` cuộn các ảnh thay đổi qua vòng lặp]**
+Chuyển sang Assignment 2, để Gen ra những Asset 2D chất lượng Bingo Studio, em đã xây dựng mô hình Phân tích ma trận 5 chiều: Art Style, Hex Colors, Camera Angle, Lighting và Detail Level.
+Em áp dụng cấu trúc câu lệnh Modular có chủ đích. Các anh chị có thể thấy qua 3 vòng lặp (Iterations), em đã thay đổi các Keyword mấu chốt để ép AI xử lý các màu rác, kết quả cuối cùng cho ra bộ nút bấm và Background rất ổn định để thay trực tiếp vào Game."
 
 ---
 
-## 5. Phần B - Chiến lược Prompt Engineering (7:00 - 9:00)
-**[Hiển thị: Mở file prompt_engineering_report.md lên cuộn]**
-- Chuyển sang Assignment 2, để Gen ra những chiếc Asset Game Bingo sắc nét và không bị "ảo", em đã lập bảng ma trận phân tích 5 tiêu chí: Art Style, Hex Colors, Camera Angle, Lighting và Detail Level.
-- Từ đó, mẫu Prompt chuẩn của em luôn tuân theo cấu trúc Modular:
-  `[Subject] + [Style: cel-shading] + [Lighting: inner glow] + [Camera: straight-on] + [Format: transparent background]`.
-- *(Chỉ vào các bức ảnh quá trình đổi Version)* Ở phiên bản V1, màu bị lẫn lộn. Em đã fix bằng cách dùng Exact Keyword "Monochromatic Colorway", đến V3 thì asset đạt độ hoàn thiện cao nhất có thể thay trực tiếp vào Game Engine.
-
----
-
-## 6. Tổng kết & Đề xuất Cải tiến (9:00 - 10:00)
-**[Hiển thị: Slide Cảm ơn / Mở lại trang chủ Code Github]**
-- Em nhận thức rằng phiên bản hiện tại vãn có giới hạn. Nếu có dự án ngân sách lớn, em đề xuất đưa Queue Worker (như Celery Redis) vào thay thế ThreadPool và triển khai Caching (SHA256 Hash Prompts) để tối ưu chi phí sinh ảnh trùng lặp.
-- Lời cuối, bài Test này phản ánh toàn vẹn tư duy của em: Viết code quy mô công nghiệp (Production-ready), dễ bảo trì và bám sát giá trị nghiệp vụ.
-- Rất mong có cơ hội thực tập, học hỏi tại Athena Studio để hoàn thiện bản thân vươn tầm chuyên gia. Cảm ơn các anh chị đã lắng nghe.
+## 5. Kết luận và Mở rộng tương lai (9:00 - 10:00)
+**[Mở Github Repo trang chính]**
+"Do hạn chế về công cụ miễn phí, hệ thống hiện tại đang khóa bằng SQLite và Queue nội bộ. Ở môi trường Production có quy mô vốn lớn, giải pháp tương lai của em sẽ là đẩy Queue lên Celery Redis và áp dụng Caching bộ nhớ đệm băm (Hash Caching) nếu các Prompt bị lặp lại, nhằm tiết kiệm sâu nhất phí API cho Server.
+Tuy quy mô source code còn rất khiêm tốn, nhưng em mong dự án sẽ thể hiện được 'System Mindset' của bản thân khi ứng tuyển làm Thực tập sinh tại Athena Studio. Em rất mong nhận được những nhận xét đóng góp quý giá từ anh chị. Xin cảm ơn ạ!"

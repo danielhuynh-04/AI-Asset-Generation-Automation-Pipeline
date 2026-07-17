@@ -1,51 +1,52 @@
-# 🎬 ENGLISH PRESENTATION SCRIPT - ATHENA STUDIO INTERN TEST
-*Target time: Under 10 minutes. Goal: Confident, clear, and easy to pronounce.*
+# 🎬 DETAILED READ-ALONG ENGLISH SCRIPT
+*(Instructions: The words inside the brackets **[...]** are actions. The normal text is exactly what you SPEAK OUT LOUD in the recording. Speak clearly and confidently).*
 
 ---
 
 ## 1. Introduction (0:00 - 1:00)
-**[Show: Intro Slide / Portfolio]**
-- Hello judges from Athena Studio. My name is Le Thanh Hai Huynh. I am applying for the Prompt Engineer and Automation Engineer Intern position.
-- Today, I want to show you my project. I did not just write a simple script. I built a complete, production-ready Data Pipeline. I focused on making the system stable and secure.
+**[Action: Show your Intro Slide or the Project Title]**
+"Hello judges from Athena Studio. My name is Le Thanh Hai Huynh, applying for the Prompt Engineer and Automation Engineer Intern position.
+In this project, I did not want to write just a simple linear script. My goal was to design a complete, **Production-ready Data Pipeline**. Today, I would like to use my System Diagrams to explain my architecture."
 
 ---
 
-## 2. Part A - Automation Architecture (1:00 - 4:00)
-**[Show: Scroll down Github README.md to Architecture/BPMN Diagrams]**
-- To generate assets automatically, my system has five main parts. In my Github README, I built both High-Level Architecture and BPMN workflow diagrams using Mermaid to clearly show how components interact.
-- To save time, I used **ThreadPoolExecutor** to process many images at the same time.
-- **Problem 1 (Database Lock):** When many threads write to SQLite, errors can happen. I fixed this by using the `check_same_thread=False` setting to make the database safe.
-- **Problem 2 (API Error):** What if Google Gemini is down or out of quota? My code has an automatic fallback. It will switch to **ChatGPT (through Pollinations AI)** for free. This keeps the system running ninety-nine point nine percent (99.9%) of the time.
-- **Idempotency (Safe to Restart):** The pipeline reads the Google Sheet and skips rows that are already marked as `DONE`. If the computer turns off, you can restart it safely without making duplicate images.
+## 2. Explaining Diagrams: Architecture & BPMN (1:00 - 4:30)
+**[Action: Open the README.md on Github, scroll to the Mermaid Diagrams]**
+"(Point your mouse at the High-Level Architecture Diagram)
+As you can see in this flow chart, I decoupled the architecture into independent modules.
+The raw data from Google Sheets must pass through a strict **Validator** module. This catches one hundred percent (100%) of invalid data before making expensive API calls, which saves costs.
+
+If the data is good, the system uses a **ThreadPoolExecutor** to process many images simultaneously.
+(Point to the AI Generation Engine Subgraph)
+The core feature of this AI block is the **Fallback mechanism**. Since free Gemini accounts have strict quotas, I added a safety net. If Gemini crashes or runs out of quota, my code automatically falls back to a free model using Flux AI from Pollinations. This guarantees 99.9% uptime without breaking the process.
+
+(Scroll down to the BPMN Sequence Diagram)
+Moving to the BPMN diagram, you can see I separated the workflow into different lanes. The Image Generation Loop is completely decoupled from the Reporting operations. I integrated **APScheduler** to automatically trigger the KPI Analytics and Email distribution at exactly eleven PM (11:00 PM) everyday, so it safely runs in the background."
 
 ---
 
-## 3. Part A - Demo & Security (4:00 - 6:00)
-**[Show: Open VS Code Terminal, Type `python src/main.py`]**
-- Now, let's watch the Demo. In the Google Sheet, I added the keyword `MOCK_TIMEOUT` to test errors.
-- *(Point at Terminal)* As you can see, when a timeout happens, the system does not crash. It waits for 2 seconds, then 4 seconds. After 3 fails, it marks the job as FAILED and sends an alert.
-- **Enterprise Security:** For sending Emails, I do not use risky SMTP App Passwords. Instead, I use **Google OAuth 2.0**. The admin just clicks "Allow" on the web browser once, and the script runs safely forever.
+## 3. Code Demo & Security (4:30 - 7:00)
+**[Action: Open VS Code Terminal, type: `python src/main.py`]**
+"Now, I will run the Demo. In my Google Sheets, I injected a bad record with the keyword `MOCK_TIMEOUT` to test error recovery.
+(Point at the Warnings/Errors appearing in the terminal logs)
+As you can see! The system encounters a timeout, but it does NOT crash. It activates the **Exponential Backoff** logic — waiting 2 seconds, then 4 seconds. After 3 failed attempts, it safely logs the FAILED status into the SQLite Database. To prevent deadlock errors during multi-threading, I optimized SQLAlchemy configurations to be extremely thread-safe.
+
+Regarding Security, I removed outdated SMTP App passwords to prevent credential leaks. Instead, I integrated **Google OAuth 2.0 Web Consent** for the Gmail API. This upgrades the system to Enterprise-tier Zero Trust security."
 
 ---
 
-## 4. Part A - Daily Report (6:00 - 7:00)
-**[Show: Type `python src/daily_report.py --run-now`, open HTML file]**
-- Finally, I made a Daily Report module that runs automatically at 11 PM using **APScheduler**.
-- *(Point at HTML Dashboard)* The report creates interactive Plotly charts, like Pie and Bar charts, to show the Success Rate and Execution Time. This HTML dashboard is sent straight to the admin's email.
+## 4. Daily Report & Prompt Engineering (7:00 - 9:00)
+**[Action: Type `python src/daily_report.py --run-now` and open the generated HTML file in Chrome]**
+"Here is the automated Daily Report. I used the Plotly library to plot interactive charts showing the Success Rate, Error Frequencies, and Average Execution times. This HTML dashboard is emailed straight to the Admin everyday.
+
+**[Action: Open `prompt_engineering/prompt_engineering_report.md`, scroll through iteration images]**
+Moving to Assignment 2. To generate high-quality 2D assets for a Bingo game, I built a 5-dimension analysis matrix: Art Style, Hex Colors, Camera Angle, Lighting, and Details.
+I used a highly modular prompt structure. Across 3 iterations, as you can see, I slowly filtered out unwanted noise. The final version produces highly stable UI buttons and backgrounds that are ready to be used in the Game Engine."
 
 ---
 
-## 5. Part B - Prompt Engineering Strategy (7:00 - 9:00)
-**[Show: Open prompt_engineering_report.md]**
-- Moving to Assignment 2. To generate sharp and accurate Bingo game assets, I analyzed five things: Art Style, Colors, Camera Angle, Lighting, and Details.
-- My prompt structure is modular:
-  `[Subject] + [Style: cel-shading] + [Lighting: inner glow] + [Camera: straight-on] + [Format: transparent background]`.
-- *(Point at Iteration versions)* In version 1, colors were mixed up. I fixed this by using exact words like "Monochromatic Colorway". By version 3, the assets were ready to be used in the game engine.
-
----
-
-## 6. Conclusion (9:00 - 10:00)
-**[Show: Thank You Slide / Github Main Page]**
-- I know this version has some limits. If we have a bigger budget, I suggest using Redis Queue instead of ThreadPool, and adding Cache to save API costs.
-- In summary, this test shows my goal: to write clean, production-ready code that solves real business problems.
-- Thank you for your time and for this great opportunity.
+## 5. Conclusion & Future Scale (9:00 - 10:00)
+**[Action: Open Github Project Home Page]**
+"Due to the limitations of free tools, the system is locked to SQLite. However, in a large scale Enterprise environment, my future solution would be migrating the queues to Celery and Redis, and implementing Hash Caching for repeating prompts to save API costs.
+Although this is a small-scale submission, I hope it demonstrates my extensive **System Mindset** making me a strong candidate for an Internship at Athena Studio. 
+I really look forward to hearing your feedback. Thank you for listening!"
