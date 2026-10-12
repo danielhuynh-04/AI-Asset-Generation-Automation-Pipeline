@@ -6,7 +6,17 @@
 
 ---
 
-## 📐 I. PROMPT FRAMEWORK — Modular Architecture
+## �️ Thư Viện Trực Quan Asset Thế Hệ V3 (Production Output)
+
+| Nhân Vật (Character) | Quả Cầu Bingo (Ball) | Nút Bấm Giao Diện (Button) | Khung Thẻ (Frame) | Phông Nền Sân Khấu (Stage) |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="iterations/character/v3_character_final.png" width="160" alt="Character"/> | <img src="iterations/bingo_ball/v3_ball_blue_final.png" width="140" alt="Ball"/> | <img src="iterations/ui_button/v3_button_play_final.png" width="160" alt="Button"/> | <img src="iterations/card_frame/v3_frame_blue_final.png" width="140" alt="Frame"/> | <img src="iterations/background/v3_background_final.png" width="180" alt="Background"/> |
+| **Game Show Host** (1024×1024) | **Glossy 3D Ball** (#7) | **3D Bevel Nút Play** | **Khung Mạ Vàng Baroque** | **Sân Khấu Kịch** (1080p) |
+| Điểm: **25/25** | Điểm: **25/25** | Điểm: **25/25** | Điểm: **25/25** | Điểm: **25/25** |
+
+---
+
+## �📐 I. PROMPT FRAMEWORK — Modular Architecture
 
 ### 1.1 Cấu trúc Prompt Chuẩn (Enterprise-Grade)
 

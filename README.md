@@ -18,6 +18,11 @@ _An end-to-end, fault-tolerant automation pipeline that reads asset requests fro
 
 **Built by:** [Daniel Huynh](https://github.com/danielhuynh-04) • [LinkedIn](https://linkedin.com/in/le-thanh-hai-huynh-8353913a1) • [Kaggle](https://kaggle.com/lthanhhihunh)
 
+<p align="center">
+  <a href="PROMPT_ENGINEERING_REPORT_EN.md"><b>📖 Read Prompt Engineering Report (English)</b></a> &nbsp;•&nbsp; 
+  <a href="prompt_engineering_report.md"><b>📖 Đọc Báo Cáo Kỹ Nghệ Prompt (Tiếng Việt)</b></a>
+</p>
+
 </div>
 
 ---
