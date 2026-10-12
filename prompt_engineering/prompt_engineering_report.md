@@ -1,6 +1,6 @@
 # 🎮 PROMPT ENGINEERING REPORT
-## AI Game Asset Generation — Bingo Mobile Game (Athena Studio)
-### Ứng viên: Lê Thanh Hải Huỳnh (Daniel Huynh)
+## AI Game Asset Generation — Bingo Mobile Game Suite
+### Kỹ sư: Lê Thanh Hải Huỳnh (Daniel Huynh)
 
 > **Phương pháp luận:** Áp dụng quy trình Prompt Engineering chuẩn Enterprise (Google DeepMind / NVIDIA GameWorks / Meta AI Research) — phân tích có hệ thống, lặp lại có kiểm soát, đánh giá định lượng. Mỗi prompt được cấu trúc theo **Modular Prompt Architecture** để dễ thay thế từng thành phần mà không phá vỡ tổng thể.
 

@@ -1,5 +1,5 @@
 # 🏛️ System Design & Architecture
-*Athena Studio - AI Asset Generation Automation Pipeline*
+*AI Asset Generation Automation Pipeline*
 
 ## 1. High-Level Architecture Diagram
 Đây là kiến trúc luồng dữ liệu chính của AI Asset Pipeline. Hệ thống được thiết kế với tư duy Module hóa cao (Decoupled architecture) và có khả năng phục hồi lỗi (Fault-tolerant).

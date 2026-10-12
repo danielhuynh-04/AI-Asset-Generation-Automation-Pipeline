@@ -1,7 +1,7 @@
 # Requirement Analysis
 ## Project: AI Asset Generation Automation Pipeline
-## Vị trí: Prompt Engineer / Automation Engineer Intern — Athena Studio
-### Ngày: 2026-07-14
+## Domain: Game Asset Generation & Cloud Orchestration
+### Date: 2026-07-14
 
 ---
 

@@ -1,246 +1,259 @@
-# AI Asset Generation Automation Pipeline
-### Athena Studio — Prompt Engineer / Automation Engineer Intern Test
-**Ứng viên:** Lê Thanh Hải Huỳnh (Daniel Huynh) | [GitHub](https://github.com/danielhuynh-04) | [Kaggle](https://kaggle.com/lthanhhihunh)
+<div align="center">
 
-> **Tiếp cận:** Toàn bộ automation workflow được thiết kế như một **data pipeline có kiểm soát chất lượng** — validate input tại nguồn, kiểm soát lỗi tại từng bước, log đầy đủ state, và đánh giá kết quả bằng số liệu cụ thể. Nguyên tắc tôi đã áp dụng khi xây dựng hệ thống dự báo dịch bệnh Dengue với R² = 0.966.
+# 🎨 AI Asset Generation Automation Pipeline
 
-## 🔥 Production-Ready Architecture (System Mindset)
+### Production-Grade Multi-Model AI Content Generation with Cloud-Native Orchestration
 
-Bài test này không dừng lại ở mức kịch bản chạy tự động (Scripting) mà được thiết kế theo tư duy của một **Data Pipeline tiêu chuẩn thực tế (Production-ready)**:
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white">
+  <img src="https://img.shields.io/badge/Google_Cloud-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white">
+  <img src="https://img.shields.io/badge/Gemini_API-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white">
+  <img src="https://img.shields.io/badge/OAuth_2.0-EB4335?style=for-the-badge&logo=google&logoColor=white">
+  <img src="https://img.shields.io/badge/Slack_API-4A154B?style=for-the-badge&logo=slack&logoColor=white">
+  <img src="https://img.shields.io/badge/SQLAlchemy-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white">
+  <img src="https://img.shields.io/badge/Plotly-3F4F75?style=for-the-badge&logo=plotly&logoColor=white">
+</p>
 
-1. **Multi-threaded I/O (Xử lý Đa Luồng):** Chuyển vòng lặp xử lý tuần tự sang `concurrent.futures.ThreadPoolExecutor(max_workers=5)`, giúp gọi API AI và Google Drive **song song**, xử lý hàng trăm tấm ảnh trong không gian thời gian bị block thấp nhất.
-2. **Resilient LLM Fallback (Chống đứt đoạn System & Xử lý 429):** Khai thác triệt để chiến thuật Multi-Model. Mặc định gọi *Gemini Pro*. Nếu API hất văng vì **HTTP 429 Too Many Requests / Quota Exceeded**, hệ thống dựa vào Exponential Backoff lỳ đòn quay xe Fallback sang **ChatGPT (Pollinations)**. Lỗi không bao giờ gây Crash (Zero-Crash), bảo toàn thông lượng đa luồng. Hơn thế, các công việc thất bại kiệt sức 3 Retries sẽ được **đồng bộ ngược trạng thái FAILED về thẳng Google Sheets** phục vụ đối soát 2 chiều hoàn hảo.
-3. **Thread-Safe State Machine (Ghi Log an toàn):** Với môi trường đa luồng, SQLite được tinh chỉnh qua SQLAlchemy `connect_args={"check_same_thread": False, "timeout": 15}` giúp Transactions an toàn tuyệt đối, triệt tiêu lỗi deadlocks (database is locked).
-4. **Enterprise Zero-Trust Security (Bảo mật tuyệt đối):** Loại bỏ hoàn toàn phương thức gửi Email rủi ro bằng SMTP/App Password. Tích hợp trực tiếp **Gmail API qua chuẩn OAuth 2.0 Web Consent**, thiết lập file Tokens độc lập theo nguyên tắc Least Privilege (Drive và Gmail không xâm phạm quyền của nhau).
-5. **Decoupled Architecture & Idempotency:** Hệ thống có khả năng ngắt quãng và chạy lại mà không bị sinh trùng lặp ảnh (chỉ chạy dòng chưa DONE). Module báo cáo (Analytics Report) chạy Process tách biệt bằng APScheduler để không làm nặng luồng Main.
+_An end-to-end, fault-tolerant automation pipeline that reads asset requests from Google Sheets, generates images/audio via multi-model AI (Gemini Imagen 3 + Pollinations.ai + gTTS), uploads results to Google Drive, logs state to SQLite, and delivers real-time alerts via Slack Webhooks & Gmail OAuth 2.0 — all orchestrated through a multi-threaded Python pipeline with exponential backoff retry logic._
 
----
+**Built by:** [Daniel Huynh](https://github.com/danielhuynh-04) • [LinkedIn](https://linkedin.com/in/le-thanh-hai-huynh-8353913a1) • [Kaggle](https://kaggle.com/lthanhhihunh)
 
-## 📅 5-Day Project Timeline (Execution Plan)
-
-> Thể hiện tư duy Quản lý dự án (Project Management) và phân bổ nguồn lực khoa học, đảm bảo giao hàng (delivery) đúng deadline.
-
-```mermaid
-gantt
-    title Athena Asset Automation Pipeline 5 Days Plan
-    dateFormat  YYYY-MM-DD
-    axisFormat  %Y-%m-%d
-    
-    section Day 1 Setup
-    Requirement Analysis     :done,    des1, 2026-07-13, 1d
-    System Design & ERD      :done,    des2, 2026-07-13, 1d
-    Environment Setup        :done,    des3, 2026-07-13, 1d
-    
-    section Day 2 Core
-    Modules coding           :done,    dev1, 2026-07-14, 1d
-    Database & Retry Logic   :done,    dev2, 2026-07-14, 1d
-    Integration & Tests      :done,    dev3, 2026-07-14, 1d
-    
-    section Day 3 Prompting
-    Asset Style Analysis     :done,    pe1, 2026-07-15, 1d
-    Iterative Prompting V1X  :done,    pe2, 2026-07-15, 1d
-    Prompt Eng Report        :done,    pe3, 2026-07-15, 1d
-    
-    section Day 4 Reporting
-    Daily Report Plotly      :done,    rep1, 2026-07-16, 1d
-    Slack Notifications      :done,    rep2, 2026-07-16, 1d
-    Documentation README     :done,    rep3, 2026-07-16, 1d
-    
-    section Day 5 Submission
-    Final Packaging Cleanup  :done,    sub1, 2026-07-17, 1d
-    Video Presentation       :active,  sub2, 2026-07-17, 1d
-    Submit to HR             :active,  sub3, 2026-07-17, 1d
-```
+</div>
 
 ---
 
-## 🏗️ System Architecture & Workflow
+## 🏆 Key Technical Highlights
 
-Đây là kiến trúc luồng dữ liệu chính của AI Asset Pipeline. Hệ thống được thiết kế với tư duy Module hóa cao (Decoupled architecture) và khả năng phục hồi lỗi (Fault-tolerant).
+| Capability | Implementation |
+|:---|:---|
+| **Multi-Model AI Orchestration** | Gemini Imagen 3 (Primary) → Pollinations.ai Flux (Fallback) → gTTS (Audio) |
+| **LLM-Powered Prompt Optimization** | Gemini Pro Flash auto-rewrites user descriptions into professional prompts before generation |
+| **Concurrent Processing** | `ThreadPoolExecutor(max_workers=5)` for parallel API calls & uploads |
+| **Resilient Retry Logic** | Exponential Backoff with 3 retries, automatic Gemini→Pollinations failover on HTTP 429 |
+| **Zero-Crash Architecture** | Every exception is caught, logged to SQLite, and synced back to Google Sheets as FAILED |
+| **Enterprise Security** | Gmail API via **OAuth 2.0 Web Consent** (no SMTP/App Passwords), scoped Drive tokens |
+| **Automated Daily Analytics** | APScheduler triggers Plotly HTML dashboards at 23:00 daily, emailed to admin |
+| **Idempotent Pipeline** | Resume-safe — only processes rows with status ≠ DONE, prevents duplicate generation |
+
+---
+
+## 🏗️ System Architecture
 
 ```mermaid
 graph TD
-    A[Google Sheets<br>Data Input] -->|Read Pending Rows| B(src/sheets_reader.py);
-    B -->|Raw Rows| C{src/validator.py};
-    
-    C -- Invalid --> D[src/db_logger.py<br>Mark FAILED];
-    C -- Valid --> E(src/main.py<br>ThreadPoolExecutor);
-    
-    E -->|Dispatch| F[src/ai_generator.py];
-    
-    subgraph AI Generation Engine
-       F -->|Try 1: Gemini Pro| G[Google Gemini API]
-       G -.->|Quota Exceeded| H[Pollinations AI Fallback]
-       G -.->|Timeout| I[retry_wrapper.py<br>Exponential Backoff]
+    A["Google Sheets<br>Asset Request Input"] -->|Read PENDING Rows| B("src/sheets_reader.py<br>Google Sheets API v4")
+    B -->|Raw Row Data| C{"src/validator.py<br>Schema Validation"}
+
+    C -- Invalid Data --> D["src/db_logger.py<br>Mark Status = FAILED"]
+    C -- Valid Data --> E("src/main.py<br>ThreadPoolExecutor<br>max_workers=5")
+
+    E -->|Dispatch Job| F["src/ai_generator.py"]
+
+    subgraph "AI Generation Engine (Multi-Model Fallback)"
+       F -->|"Primary: Gemini Imagen 3<br>(imagen-3.0-generate-002)"| G["Google Gemini API"]
+       G -.->|"HTTP 429 / Quota Exceeded"| H["Pollinations.ai Fallback<br>(Flux Model, Free, No API Key)"]
+       G -.->|"Timeout / Error"| I["src/retry_wrapper.py<br>Exponential Backoff<br>3 Retries (2s → 4s → 8s)"]
+       F -->|"Audio Format (MP3)"| J["gTTS<br>Google Text-to-Speech"]
     end
-    
-    G --> J(Asset Generated);
-    H --> J;
-    
-    J -->|Upload| K[src/drive_uploader.py];
-    K -->|Store| L[(Google Drive)];
-    
-    J -->|Log Status| D;
-    D -->|Write| M[(SQLite Database)];
-    
-    J -->|URL & Status| N[src/notifier.py];
-    N -->|Slack Webhook| O[Slack Alerts];
-    N -->|OAuth 2.0| P[Gmail Alerts];
-    
-    Q((APScheduler)) -.->|Trigger 23:00| R[src/daily_report.py];
-    M -.->|Query Stats| R;
-    R -->|Plotly Charts| S[HTML Dashboard];
-    S --> P;
+
+    subgraph "LLM Prompt Optimization Layer"
+       F -->|"Pre-Generation Step"| K["Gemini Pro Flash<br>(gemini-2.0-flash)"]
+       K -.->|"Fallback"| L["ChatGPT via Pollinations<br>Text API (Free)"]
+    end
+
+    G --> M("Asset Generated<br>PNG / JPG / GIF / MP3")
+    H --> M
+    J --> M
+
+    M -->|"Upload Binary"| N["src/drive_uploader.py<br>Google Drive API v3<br>OAuth 2.0 Token"]
+    N -->|"Store & Get URL"| O[("Google Drive<br>Outputs/{date}/{format}/")]
+
+    M -->|"Log State Transition"| D
+    D -->|"Write Transaction"| P[("SQLite Database<br>Thread-Safe via SQLAlchemy<br>check_same_thread=False")]
+
+    M -->|"Real-Time Alert"| Q["src/notifier.py"]
+    Q -->|"Slack Block Kit"| R["Slack Channel<br>Webhook POST"]
+    Q -->|"Gmail API OAuth 2.0"| S["Admin Email<br>HTML + Attachment"]
+
+    T(("APScheduler<br>CronTrigger 23:00")) -.->|"Trigger Daily"| U["src/daily_report.py"]
+    P -.->|"Query Stats"| U
+    U -->|"Generate Charts"| V["Plotly HTML Dashboard<br>(Pie + Bar + Scatter + Distribution)"]
+    V --> S
+
+    style A fill:#003366,color:#fff,stroke:#002244
+    style F fill:#336699,color:#fff,stroke:#113355
+    style G fill:#6699cc,color:#fff,stroke:#224466
+    style M fill:#003366,color:#fff,stroke:#002244
+    style P fill:#336699,color:#fff,stroke:#113355
+    style V fill:#6699cc,color:#fff,stroke:#224466
 ```
 
-## 🔄 Business Process Model (BPMN)
+---
+
+## 🔄 Business Process Flow (BPMN Sequence)
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor User
     participant System as Orchestrator (main.py)
-    participant AI as AI Services (Gemini/Pollinations)
-    participant Storage as Storage (Drive/SQLite)
-    participant Notif as Notifications (Slack/Email)
+    participant AI as AI Services (Gemini / Pollinations / gTTS)
+    participant Storage as Storage (Drive / SQLite)
+    participant Notif as Notifications (Slack / Email)
 
-    User->>Storage: 1. Input Prompt to Google Sheets
-    System->>Storage: 2. Fetch PENDING Rows
-    Storage-->>System: Return Rows Data
-    
-    Note over System, AI: Execution Loop (Concurrent)
-    System->>System: 3. Validate Data Format
-    
-    alt is Valid
-        System->>AI: 4. Request Asset Generation
-        AI-->>System: Return Image/Audio Bytes (Success)
-        System->>Storage: 5. Upload File to Google Drive
-        Storage-->>System: Return Shareable URL
-        System->>Storage: 6. Update SQLite Status (SUCCESS)
-        System->>Notif: 7. Trigger notify_success()
-        Notif-->>User: Slack/Email Success Alert
-    else is Invalid or AI Failed
-        AI-->>System: Timeout/Error after 3 Retries
-        System->>Storage: 8. Update SQLite Status (FAILED)
-        System->>Notif: 9. Trigger notify_failure()
-        Notif-->>User: Slack/Email Error Alert
+    User->>Storage: 1. Input asset request to Google Sheets
+    System->>Storage: 2. Fetch all PENDING rows via Sheets API
+    Storage-->>System: Return row data (description, format, model)
+
+    Note over System, AI: Concurrent Execution Loop (ThreadPoolExecutor)
+    System->>System: 3. Validate schema (format, description length, URL)
+
+    alt Valid Request
+        System->>AI: 4. Optimize prompt via LLM (Gemini Flash / ChatGPT)
+        AI-->>System: Return optimized prompt
+        System->>AI: 5. Generate asset (Image or Audio)
+        AI-->>System: Return binary file bytes
+        System->>Storage: 6. Upload file to Google Drive folder
+        Storage-->>System: Return shareable Drive URL
+        System->>Storage: 7. Update SQLite status → SUCCESS
+        System->>Storage: 8. Sync status back to Google Sheets
+        System->>Notif: 9. Trigger notify_success()
+        Notif-->>User: Slack Block Kit + Gmail HTML alert
+    else Invalid or AI Generation Failed
+        AI-->>System: Error after 3 retry attempts
+        System->>Storage: 10. Update SQLite status → FAILED
+        System->>Storage: 11. Sync FAILED status to Google Sheets
+        System->>Notif: 12. Trigger notify_failure()
+        Notif-->>User: Slack Error Block + Gmail Error alert
     end
-    
-    Note over System, Notif: Asynchronous Daily Reporting
-    System-->>System: 10. Trigger at 23:00 (APScheduler)
-    System->>Storage: 11. Query Daily Stats
-    System->>System: 12. Generate Plotly HTML Dashboard
-    System->>Notif: 13. Send Dashboard Summary
-    Notif-->>User: Final Daily Report Email
+
+    Note over System, Notif: Async Daily Analytics (APScheduler CronTrigger)
+    System-->>System: 13. Trigger at 23:00 daily
+    System->>Storage: 14. Query aggregated daily stats from SQLite
+    System->>System: 15. Generate 4 Plotly charts (Pie, Bar, Scatter, Distribution)
+    System->>Notif: 16. Email HTML Dashboard report with attachment
+    Notif-->>User: Daily Analytics Summary
 ```
 
 ---
 
-## Quick Start
+## 🧩 Module Architecture
 
-### 1. Clone & Environment
+```text
+AI-Asset-Generation-Automation-Pipeline/
+│
+├── src/                              # Core Pipeline Modules
+│   ├── main.py                       # ⚙️  Pipeline Orchestrator (ThreadPoolExecutor, argparse CLI)
+│   ├── sheets_reader.py              # 📊 Google Sheets API v4 Ingestion (read PENDING rows)
+│   ├── validator.py                  # ✅ Input Schema Validation (format, URL, description length)
+│   ├── ai_generator.py              # 🤖 Multi-Model AI Dispatcher (Gemini Imagen 3 + Pollinations + gTTS)
+│   ├── retry_wrapper.py             # 🔄 Exponential Backoff Retry Decorator (configurable retries & delay)
+│   ├── drive_uploader.py            # ☁️  Google Drive API v3 Upload (OAuth 2.0 scoped tokens)
+│   ├── db_logger.py                 # 💾 SQLAlchemy ORM State Machine (thread-safe SQLite transactions)
+│   ├── notifier.py                  # 📢 Slack Webhook + Gmail API OAuth 2.0 Notifications
+│   └── daily_report.py              # 📈 Plotly Analytics Dashboard + APScheduler CronTrigger
+│
+├── prompt_engineering/               # Prompt Engineering Research & Iterations
+│   ├── PROMPT_ENGINEERING_REPORT_EN.md   # Full English prompt engineering methodology report
+│   ├── prompt_engineering_report.md      # Vietnamese version
+│   └── iterations/                       # V1 → V2 → V3 prompt iteration samples per asset type
+│
+├── tests/                            # Automated Test Suite (pytest)
+│   ├── conftest.py                   # Shared fixtures
+│   ├── test_validator.py             # Input validation edge cases (format, URL, description)
+│   └── test_db_logger.py            # Database state machine transitions
+│
+├── database/                         # Database Schema & ERD
+├── docs/                             # Setup Guide & System Design
+├── .env.example                      # Environment variable template
+├── requirements.txt                  # Python dependencies
+└── README.md                         # This documentation
+```
+
+---
+
+## 🛠️ Full Technology Stack
+
+| Category | Technologies |
+|:---|:---|
+| **Core Language** | Python 3.10+, SQL |
+| **AI / ML Models** | Google Gemini Imagen 3 (`imagen-3.0-generate-002`), Gemini Pro Flash (`gemini-2.0-flash`), Pollinations.ai (Flux), gTTS |
+| **Google Cloud Platform** | Sheets API v4, Drive API v3, Generative Language API, Gmail API, OAuth 2.0 Web Consent, Service Accounts |
+| **Concurrency** | `concurrent.futures.ThreadPoolExecutor` (5 workers), thread-safe SQLite via `check_same_thread=False` |
+| **Persistence** | SQLite + SQLAlchemy ORM (Job State Machine: PENDING → RUNNING → SUCCESS / FAILED) |
+| **Notifications** | Slack Incoming Webhooks (Block Kit JSON), Gmail API OAuth 2.0 (HTML emails + attachments) |
+| **Analytics** | Plotly (Pie, Bar, Scatter, Distribution charts), APScheduler (CronTrigger daily at 23:00) |
+| **Resilience** | Custom `@retry` decorator with Exponential Backoff (2ˢ delay, 3 max retries), Multi-Model Fallback Chain |
+| **Security** | OAuth 2.0 scoped tokens (Least Privilege), zero hardcoded credentials, `.env` isolation |
+| **Testing** | pytest (validator + db_logger coverage) |
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone & Setup
 ```bash
-git clone https://github.com/danielhuynh-04/athena-prompt-automation-test
-cd athena-prompt-automation-test
+git clone https://github.com/danielhuynh-04/AI-Asset-Generation-Automation-Pipeline
+cd AI-Asset-Generation-Automation-Pipeline
 python -m venv .venv
 .venv\Scripts\activate       # Windows
 pip install -r requirements.txt
 ```
 
-### 2. Google Cloud Setup (REQUIRED — làm một lần)
+### 2. Google Cloud Configuration
+> **Detailed guide:** [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md)
 
-> **Bước 0: Xem hướng dẫn chi tiết trong [`docs/SETUP_GUIDE.md`](docs/SETUP_GUIDE.md)**
+1. Create a [Google Cloud Project](https://console.cloud.google.com) → Enable Sheets API, Drive API, Generative Language API, Gmail API
+2. Create Service Account → download JSON → save as `credentials.json` in project root
+3. Get [Gemini API Key](https://aistudio.google.com/app/apikey)
+4. Create a Google Sheet, share with the service account email, copy Sheet ID
+5. Create [Slack Webhook](https://api.slack.com/messaging/webhooks) → copy URL
+6. Create [OAuth Client ID](https://console.cloud.google.com/apis/credentials/oauthclient) → download `client_secret.json`
 
-**Tóm tắt nhanh:**
-1. [Tạo Google Cloud Project](https://console.cloud.google.com) → bật Sheets API, Drive API, Generative Language API
-2. Tạo Service Account → download JSON → đặt tên `credentials.json` ở root project
-3. [Lấy Gemini API key](https://aistudio.google.com/app/apikey)
-4. Tạo Google Sheet, share với email service account, copy Sheet ID
-5. Lấy **Slack Webhook URL**: [Tạo Slack Webhook](https://api.slack.com/messaging/webhooks) (Tạo App, bật Incoming Webhooks, copy link).
-6. [Tạo OAuth Client ID](https://console.cloud.google.com/apis/credentials/oauthclient) tải file `client_secret.json` về (phục vụ Upload Google Drive).
-
-### 3. Cấu hình `.env`
+### 3. Configure Environment
 ```bash
 cp .env.example .env
-# Mở .env và điền các giá trị thực:
-# GEMINI_API_KEY, GOOGLE_SHEET_ID, GOOGLE_DRIVE_FOLDER_ID, SLACK_WEBHOOK_URL, SMTP credentials
+# Fill in: GEMINI_API_KEY, GOOGLE_SHEET_ID, GOOGLE_DRIVE_FOLDER_ID, SLACK_WEBHOOK_URL
 ```
 
-### 4. Chạy Pipeline
+### 4. Run Pipeline
 ```bash
 cd src
-python main.py
-```
-
-### 5. Các lệnh khác
-```bash
-# Chỉ generate daily report
-python src/main.py --report-only
-
-# Pipeline + bật scheduler (tự report lúc 23:00)
-python src/main.py --with-scheduler
-
-# Generate report cho ngày cụ thể
-python src/daily_report.py --run-now --date 2026-07-14
-
-# Chạy unit tests
-python -m pytest tests/ -v
+python main.py                       # Full pipeline execution
+python main.py --report-only         # Generate daily analytics report only
+python main.py --with-scheduler      # Pipeline + auto-report at 23:00
+python daily_report.py --run-now     # Immediate report generation
+python -m pytest tests/ -v           # Run test suite
 ```
 
 ---
 
-## Google Sheet Format
-
-| Cột | Loại | Mô tả |
-|---|---|---|
-| `id` | số | Unique row ID |
-| `description` | text | Mô tả asset (bắt buộc, tối thiểu 10 ký tự) |
-| `example_url` | URL | Ảnh mẫu tham khảo (tùy chọn) |
-| `output_format` | PNG/JPG/GIF/MP3 | Định dạng output |
-| `model` | Gemini/Pollinations | AI model dùng để generate |
-| `status` | auto | Pipeline ghi: DONE / FAILED |
-
----
-
-## 🧪 Comprehensive Test Cases (100% Covered)
-
-Đề bài yêu cầu 4 test cases bắt buộc. Bạn có thể tự mô phỏng trong Google Sheets như sau:
-
-| Test Case | Cách giả lập trong Google Sheet | Expected Behavior |
-|---|---|---|
-| **✅ 1. Job thành công** | Điền chuỗi hợp lệ vào description | AI sinh ảnh/âm thanh, lưu Drive, báo Slack SUCCESS, `status=DONE`. |
-| **❌ 2. Sai URL example** | Điền `http://xyz` không hợp lệ | Pipeline ghi log Thẻ `[VALIDATE] WARNING`, vẫn ráng chạy nhưng bỏ qua URL lỗi. |
-| **❌ 3. API Timeout** | Điền có chứa chữ **`MOCK_TIMEOUT`** vào description | Pipeline tự động bắt từ khoá, raise `TimeoutError`, Retry 3 lần, fail & báo Slack. |
-| **❌ 4. Sai Format** | Điền `WEBP` hoặc `MP4` vào format | Validator chặn cứng từ vòng gửi xe, đánh `FAILED`, báo qua Slack. |
-
----
-
-## AI Models
-
-| Model | Chi tiết | Giới hạn |
-|---|---|---|
-| **Gemini Imagen 3** | `imagen-3.0-generate-002` — chất lượng cao | 10 ảnh/ngày (free tier) |
-| **Pollinations.ai** | Miễn phí, không cần key, dùng Flux model | Không giới hạn |
-| **gTTS** | Google Text-to-Speech cho MP3 | Miễn phí |
-| **Gemini Pro Flash** | Tối ưu hóa prompt trước khi generate | 1500 req/ngày |
-
-> **Lưu ý kỹ thuật:** Claude (Anthropic) không sinh ảnh trực tiếp. Kiến trúc này dùng Gemini cho cả text optimization và image generation — tiết kiệm chi phí và đơn giản hóa dependencies.
-
----
-
-## Job State Machine
+## 📊 Job State Machine
 
 ```
-PENDING → RUNNING → SUCCESS
-                 ↘
-           RETRY (1-3) → SUCCESS
-                       ↘ FAILED
-PENDING → FAILED (validation error — không qua AI)
+PENDING → RUNNING → SUCCESS (asset generated, uploaded, notified)
+                  ↘
+             RETRY (1→3) → SUCCESS
+                         ↘ FAILED (retries exhausted, logged & notified)
+
+PENDING → FAILED (validation error — blocked before AI generation)
 ```
 
 ---
 
-## Output Structure
+## 🤖 AI Model Specifications
+
+| Model | Purpose | Tier |
+|:---|:---|:---|
+| **Gemini Imagen 3** (`imagen-3.0-generate-002`) | High-quality image generation (primary) | Free: 10 images/day |
+| **Pollinations.ai** (Flux) | Free fallback image generation (no API key) | Unlimited |
+| **Gemini Pro Flash** (`gemini-2.0-flash`) | LLM prompt optimization before generation | Free: 1,500 req/day |
+| **ChatGPT** (via Pollinations Text API) | Fallback prompt optimizer | Free, unlimited |
+| **gTTS** (Google Text-to-Speech) | Audio asset generation (MP3) | Free, unlimited |
+
+---
+
+## 📂 Output Structure
 
 ```
 outputs/
@@ -252,48 +265,26 @@ outputs/
     │   └── job_0002_1720900020.jpg
     └── MP3/
         └── job_0004_1720900080.mp3
-```
 
-Google Drive mirror: `Outputs/{date}/{format}/{filename}`
+Google Drive Mirror: Outputs/{date}/{format}/{filename}
+```
 
 ---
 
-## Known Limitations & Future Work
+## 🔮 Future Improvements
 
-| Limitation | Future Improvement |
-|---|---|
-| Gemini Imagen: 10 ảnh/ngày free tier | Queue worker + paid tier hoặc mix với Pollinations |
-| APScheduler in-process (dừng khi script tắt) | Migrate sang Celery + Redis cho production |
-| SQLite: single-file, no concurrent writes | Postgres cho multi-user / high volume |
-| No deduplication by prompt hash | Cache layer: SHA256(prompt) → skip re-generation |
-| Pollinations.ai public API (no SLA) | Self-hosted Stable Diffusion via HuggingFace |
+| Current Limitation | Planned Upgrade |
+|:---|:---|
+| Gemini free tier (10 images/day) | Queue worker + paid API tier or self-hosted Stable Diffusion |
+| APScheduler in-process (stops with script) | Celery + Redis distributed task queue |
+| SQLite single-file database | PostgreSQL for multi-user, high-volume production |
+| No prompt deduplication | SHA-256 prompt hash cache layer to skip re-generation |
+| Pollinations public API (no SLA) | Self-hosted inference via HuggingFace Inference Endpoints |
 
 ---
 
-## Project Structure
-
-```
-├── src/
-│   ├── main.py              # Pipeline orchestrator
-│   ├── sheets_reader.py     # Google Sheets ingestion
-│   ├── validator.py         # Input validation
-│   ├── ai_generator.py      # Gemini Imagen + Pollinations + gTTS
-│   ├── retry_wrapper.py     # Exponential backoff decorator
-│   ├── drive_uploader.py    # Google Drive upload
-│   ├── db_logger.py         # SQLAlchemy job tracking
-│   ├── notifier.py          # Slack + Email alerts
-│   └── daily_report.py      # Plotly analytics + APScheduler
-├── docs/                    # Requirement analysis, system design
-├── database/                # schema.sql + ERD
-├── prompt_engineering/      # Report + iteration images
-│   ├── PROMPT_ENGINEERING_REPORT_EN.md
-│   ├── prompt_engineering_report.md
-│   └── iterations/          # V1/V2/V3 per asset type
-├── tests/                   # pytest unit tests
-├── report_sample/           # Sample daily report output
-├── .env.example             # Config template
-├── SCRIPT_CHI_TIET_TIENG_VIET.md  # Kịch bản đọc Video SIÊU CHI TIẾT (VN)
-├── SCRIPT_DETAILED_ENGLISH.md     # Ultra-detailed Video Script (EN)
-├── requirements.txt
-└── README.md
-```
+<div align="center">
+  <b>Daniel Huynh (Huynh Le Thanh Hai)</b><br>
+  AI/Data Engineering • Ho Chi Minh City Open University (High-Quality Program)<br>
+  <a href="mailto:Haiworkai@gmail.com">Haiworkai@gmail.com</a> • <a href="https://linkedin.com/in/le-thanh-hai-huynh-8353913a1">LinkedIn</a> • <a href="https://kaggle.com/lthanhhihunh">Kaggle</a>
+</div>
